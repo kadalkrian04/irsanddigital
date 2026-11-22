@@ -3,6 +3,7 @@ import { getDb, type InvitationRow, type WishRow } from "@/lib/db";
 import InvitationClient from "@/components/InvitationClient";
 import type { Metadata } from "next";
 
+export const instant = false;
 
 type Props = {
   params: Promise<{ slug: string }>;
