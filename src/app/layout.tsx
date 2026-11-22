@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Great_Vibes, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
+import { Dancing_Script, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const fontScript = Great_Vibes({
+const fontScript = Dancing_Script({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["600", "700"],
   variable: "--font-script",
 });
 

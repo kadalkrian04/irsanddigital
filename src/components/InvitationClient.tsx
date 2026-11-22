@@ -53,22 +53,28 @@ function MaroonStripes({ position = "right" }: { position?: "left" | "right" }) 
 
 const IMG = "/templates/jawa-maroon";
 
-/* Ornamen Sudut Atas Kiri-Kanan pakai gambar asli corner-l.webp */
+/* Ornamen Sudut Atas Kiri-Kanan (dibungkus span agar flip tidak bentrok animasi) */
 function SectionCorners() {
   return (
     <>
-      <img
-        src={`${IMG}/corner-l.webp`}
-        alt=""
-        draggable={false}
-        className="absolute -left-4 -top-2 w-24 pointer-events-none select-none opacity-90 animate-jm-sway origin-top-left"
-      />
-      <img
-        src={`${IMG}/corner-l.webp`}
-        alt=""
-        draggable={false}
-        className="absolute -right-4 -top-2 w-24 pointer-events-none select-none opacity-90 -scale-x-100 animate-jm-sway-slow origin-top-left"
-      />
+      <span className="absolute -left-4 -top-2 w-24 pointer-events-none select-none opacity-90 block">
+        <img
+          src={`${IMG}/corner-l.webp`}
+          alt=""
+          draggable={false}
+          className="w-full h-auto block animate-jm-sway origin-top-left"
+        />
+      </span>
+      <span className="absolute -right-4 -top-2 w-24 pointer-events-none select-none opacity-90 block">
+        <span className="block -scale-x-100">
+          <img
+            src={`${IMG}/corner-l.webp`}
+            alt=""
+            draggable={false}
+            className="w-full h-auto block animate-jm-sway-slow origin-top-left"
+          />
+        </span>
+      </span>
     </>
   );
 }
@@ -206,37 +212,61 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
           {!isOpen && (
             <div className="fixed inset-0 z-50 flex justify-center bg-[#E5DEC9]">
               <div className="w-full max-w-md h-full relative flex flex-col justify-center items-center text-center px-6 py-7 bg-[#F4EADB] overflow-hidden">
-                {/* Ornamen 4 Sudut + Melati pakai Aset Asli */}
-                <img
-                  src={`${IMG}/corner-l.webp`}
-                  alt=""
-                  draggable={false}
-                  className="absolute -left-4 -top-2 w-32 pointer-events-none select-none opacity-95 animate-jm-sway origin-top-left"
-                />
-                <img
-                  src={`${IMG}/corner-l.webp`}
-                  alt=""
-                  draggable={false}
-                  className="absolute -right-4 -top-2 w-32 pointer-events-none select-none opacity-95 -scale-x-100 animate-jm-sway-slow origin-top-left"
-                />
-                <img
-                  src={`${IMG}/cat.webp`}
-                  alt=""
-                  draggable={false}
-                  className="absolute -left-2 bottom-2 w-28 pointer-events-none select-none animate-jm-bob"
-                />
-                <img
-                  src={`${IMG}/corner-r.webp`}
-                  alt=""
-                  draggable={false}
-                  className="absolute -right-10 -bottom-8 w-32 pointer-events-none select-none opacity-90 rotate-180 animate-jm-sway"
-                />
-                <img
-                  src={`${IMG}/melati.webp`}
-                  alt=""
-                  draggable={false}
-                  className="absolute right-4 top-[47%] w-8 pointer-events-none select-none opacity-95 -rotate-12 animate-jm-bob"
-                />
+                {/* Bunga Kiri Atas */}
+                <span className="absolute -left-4 -top-2 w-32 pointer-events-none select-none opacity-95 block">
+                  <img
+                    src={`${IMG}/corner-l.webp`}
+                    alt=""
+                    draggable={false}
+                    className="w-full h-auto block animate-jm-sway origin-top-left"
+                  />
+                </span>
+
+                {/* Bunga Kanan Atas (dipisah wrapper agar pas di pojok kanan) */}
+                <span className="absolute -right-4 -top-2 w-32 pointer-events-none select-none opacity-95 block">
+                  <span className="block -scale-x-100">
+                    <img
+                      src={`${IMG}/corner-l.webp`}
+                      alt=""
+                      draggable={false}
+                      className="w-full h-auto block animate-jm-sway-slow origin-top-left"
+                    />
+                  </span>
+                </span>
+
+                {/* Bunga Kiri Bawah */}
+                <span className="absolute -left-2 bottom-2 w-28 pointer-events-none select-none block">
+                  <img
+                    src={`${IMG}/cat.webp`}
+                    alt=""
+                    draggable={false}
+                    className="w-full h-auto block animate-jm-bob"
+                  />
+                </span>
+
+                {/* Bunga Kanan Bawah */}
+                <span className="absolute -right-10 -bottom-8 w-32 pointer-events-none select-none opacity-90 block">
+                  <span className="block rotate-180">
+                    <img
+                      src={`${IMG}/corner-r.webp`}
+                      alt=""
+                      draggable={false}
+                      className="w-full h-auto block animate-jm-sway origin-bottom-right"
+                    />
+                  </span>
+                </span>
+
+                {/* Melati Kanan Tengah */}
+                <span className="absolute right-4 top-[47%] w-8 pointer-events-none select-none opacity-95 block">
+                  <span className="block -rotate-12">
+                    <img
+                      src={`${IMG}/melati.webp`}
+                      alt=""
+                      draggable={false}
+                      className="w-full h-auto block animate-jm-bob"
+                    />
+                  </span>
+                </span>
 
                 {/* Pendopo samar di bagian bawah */}
                 <img
@@ -263,13 +293,13 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
                   {/* Nama Mempelai */}
                   <div className="mt-2 leading-none">
-                    <h1 className="text-[54px] leading-[1.02] text-[#7E2530]" style={scriptStyle}>
+                    <h1 className="text-[54px] font-bold leading-[1.02] text-[#7E2530]" style={scriptStyle}>
                       {invitation.bride_nickname}
                     </h1>
-                    <p className="text-[32px] leading-none text-[#5C6338] my-1.5" style={scriptStyle}>
+                    <p className="text-[32px] font-semibold leading-none text-[#5C6338] my-1.5" style={scriptStyle}>
                       &
                     </p>
-                    <h1 className="text-[54px] leading-[1.02] text-[#7E2530]" style={scriptStyle}>
+                    <h1 className="text-[54px] font-bold leading-[1.02] text-[#7E2530]" style={scriptStyle}>
                       {invitation.groom_nickname}
                     </h1>
                   </div>
@@ -323,13 +353,13 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
               </p>
 
               <div className="mt-2 leading-none">
-                <h2 className="text-5xl text-[#7E2530]" style={scriptStyle}>
+                <h2 className="text-5xl font-bold text-[#7E2530]" style={scriptStyle}>
                   {invitation.bride_nickname}
                 </h2>
-                <p className="text-3xl text-[#5C6338] my-1" style={scriptStyle}>
+                <p className="text-3xl font-semibold text-[#5C6338] my-1" style={scriptStyle}>
                   &
                 </p>
-                <h2 className="text-5xl text-[#7E2530]" style={scriptStyle}>
+                <h2 className="text-5xl font-bold text-[#7E2530]" style={scriptStyle}>
                   {invitation.groom_nickname}
                 </h2>
               </div>
@@ -359,7 +389,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                   dari jenismu sendiri, agar kamu merasa tenteram kepadanya, dan dijadikan-Nya di antaramu
                   rasa kasih dan sayang.”
                 </p>
-                <p className="text-2xl text-[#7E2530] mt-5" style={scriptStyle}>
+                <p className="text-2xl font-bold text-[#7E2530] mt-5" style={scriptStyle}>
                   QS. Ar-Rum: 21
                 </p>
               </div>
@@ -372,7 +402,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
           <section className="relative bg-[#F4EADB] px-6 py-14 text-center overflow-hidden">
             <SectionCorners />
             <div className="relative z-10">
-              <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
+              <h3 className="text-4xl font-bold text-[#7E2530]" style={scriptStyle}>
                 Mempelai Berbahagia
               </h3>
               <img src={`${IMG}/divider.webp`} alt="" className="w-44 h-auto mx-auto my-3" />
@@ -388,10 +418,10 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                   alt={invitation.bride_full_name}
                   className="h-64 w-auto object-contain drop-shadow-md"
                 />
-                <h4 className="text-4xl text-[#7E2530] mt-4" style={scriptStyle}>
+                <h4 className="text-4xl font-bold text-[#7E2530] mt-4" style={scriptStyle}>
                   {invitation.bride_nickname}
                 </h4>
-                <p className="text-2xl text-[#4B2C2A] mt-1" style={scriptStyle}>
+                <p className="text-2xl font-semibold text-[#4B2C2A] mt-1" style={scriptStyle}>
                   {invitation.bride_full_name}
                 </p>
                 <p className="text-xs text-[#6A4A45] mt-2 whitespace-pre-line leading-relaxed">
@@ -408,10 +438,10 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                   alt={invitation.groom_full_name}
                   className="h-64 w-auto object-contain drop-shadow-md"
                 />
-                <h4 className="text-4xl text-[#7E2530] mt-4" style={scriptStyle}>
+                <h4 className="text-4xl font-bold text-[#7E2530] mt-4" style={scriptStyle}>
                   {invitation.groom_nickname}
                 </h4>
-                <p className="text-2xl text-[#4B2C2A] mt-1" style={scriptStyle}>
+                <p className="text-2xl font-semibold text-[#4B2C2A] mt-1" style={scriptStyle}>
                   {invitation.groom_full_name}
                 </p>
                 <p className="text-xs text-[#6A4A45] mt-2 whitespace-pre-line leading-relaxed">
@@ -430,7 +460,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
               <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#5C6338]">
                 Simpan Tanggalnya
               </p>
-              <h3 className="text-4xl text-[#7E2530] mt-1" style={scriptStyle}>
+              <h3 className="text-4xl font-bold text-[#7E2530] mt-1" style={scriptStyle}>
                 Menuju Hari Bahagia
               </h3>
               <img src={`${IMG}/divider.webp`} alt="" className="w-44 h-auto mx-auto my-3" />
@@ -505,7 +535,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
             <SectionCorners />
             <div className="relative z-10 space-y-8">
               <div>
-                <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
+                <h3 className="text-4xl font-bold text-[#7E2530]" style={scriptStyle}>
                   Rangkaian Acara
                 </h3>
                 <img src={`${IMG}/divider.webp`} alt="" className="w-44 h-auto mx-auto my-3" />
@@ -534,7 +564,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                   className="relative px-6 py-8 rounded-3xl border-[1.5px] border-[#7E2530]/60 bg-[#FAF6F0]/60 shadow-xs space-y-3"
                 >
                   <img src={`${IMG}/tea-set.webp`} alt="" className="w-48 h-auto mx-auto" />
-                  <h4 className="text-4xl text-[#7E2530]" style={scriptStyle}>
+                  <h4 className="text-4xl font-bold text-[#7E2530]" style={scriptStyle}>
                     {ev.title}
                   </h4>
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5C6338]">
@@ -569,7 +599,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
           <section className="relative bg-[#F2E2DE] px-6 py-14 text-center overflow-hidden">
             <SectionCorners />
             <div className="relative z-10">
-              <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
+              <h3 className="text-4xl font-bold text-[#7E2530]" style={scriptStyle}>
                 Keluarga Kami
               </h3>
               <img src={`${IMG}/divider.webp`} alt="" className="w-44 h-auto mx-auto my-3" />
@@ -606,7 +636,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                 <SectionCorners />
                 <div className="relative z-10">
                   <img src={`${IMG}/gift.webp`} alt="Tanda Kasih" className="w-44 h-auto mx-auto mb-2" />
-                  <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
+                  <h3 className="text-4xl font-bold text-[#7E2530]" style={scriptStyle}>
                     Tanda Kasih
                   </h3>
                   <img src={`${IMG}/divider.webp`} alt="" className="w-44 h-auto mx-auto my-3" />
@@ -659,7 +689,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
             <SectionCorners />
             <div className="relative z-10">
               <img src={`${IMG}/envelope.webp`} alt="RSVP" className="w-40 h-auto mx-auto mb-2" />
-              <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
+              <h3 className="text-4xl font-bold text-[#7E2530]" style={scriptStyle}>
                 RSVP & Ucapan
               </h3>
               <img src={`${IMG}/divider.webp`} alt="" className="w-44 h-auto mx-auto my-3" />
@@ -716,7 +746,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                   wishList.map((w) => (
                     <div key={w.id} className="bg-[#FAF6F0] px-5 py-4 rounded-sm shadow-sm border border-[#E6D6C8]">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-2xl text-[#7E2530]" style={scriptStyle}>
+                        <p className="text-2xl font-bold text-[#7E2530]" style={scriptStyle}>
                           {w.guest_name}
                         </p>
                         <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#7E2530]/10 text-[#7E2530] font-semibold">
@@ -739,7 +769,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
             <div className="relative z-10 flex flex-col items-center">
               <img src={`${IMG}/couple.webp`} alt="Mempelai" className="w-44 h-auto mx-auto" />
 
-              <h3 className="text-4xl text-[#7E2530] mt-5" style={scriptStyle}>
+              <h3 className="text-4xl font-bold text-[#7E2530] mt-5" style={scriptStyle}>
                 Terima Kasih
               </h3>
               <p className="text-xs leading-relaxed text-[#6A4A45] max-w-xs mx-auto mt-3">
@@ -748,20 +778,20 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
               </p>
 
               <div className="mt-6 leading-none">
-                <p className="text-5xl text-[#7E2530]" style={scriptStyle}>
+                <p className="text-5xl font-bold text-[#7E2530]" style={scriptStyle}>
                   {invitation.bride_nickname}
                 </p>
-                <p className="text-3xl text-[#5C6338] my-1" style={scriptStyle}>
+                <p className="text-3xl font-semibold text-[#5C6338] my-1" style={scriptStyle}>
                   &
                 </p>
-                <p className="text-5xl text-[#7E2530]" style={scriptStyle}>
+                <p className="text-5xl font-bold text-[#7E2530]" style={scriptStyle}>
                   {invitation.groom_nickname}
                 </p>
               </div>
 
               <img src={`${IMG}/divider.webp`} alt="" className="w-44 h-auto mx-auto my-5" />
 
-              <p className="text-2xl text-[#5C6338]" style={scriptStyle}>
+              <p className="text-2xl font-bold text-[#5C6338]" style={scriptStyle}>
                 #{invitation.bride_nickname}{invitation.groom_nickname}Berjodoh
               </p>
               <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#4B2C2A] mt-1 mb-6">
@@ -776,7 +806,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
     );
   }
 
-  /* ==================== RENDER TEMA LAINNYA (Classic Gold, Royal Blue, Sage) ==================== */
+  /* ==================== RENDER TEMA LAINNYA ==================== */
   return (
     <div className={`min-h-screen ${theme.outerBg} text-slate-800 flex justify-center`}>
       {invitation.music_url && <audio ref={audioRef} src={invitation.music_url} loop preload="none" />}
@@ -789,7 +819,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
               )}
               <div className="relative z-10 mt-10">
                 <p className="text-xs uppercase tracking-[0.25em] text-slate-500">The Wedding Of</p>
-                <h1 className="text-5xl mt-3" style={{ ...scriptStyle, color: accent }}>
+                <h1 className="text-5xl font-bold mt-3" style={{ ...scriptStyle, color: accent }}>
                   {invitation.bride_nickname} & {invitation.groom_nickname}
                 </h1>
                 <p className="text-sm text-slate-600 mt-2">{invitation.event_date_label}</p>
@@ -822,7 +852,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
         <section className={`text-center px-6 pt-16 pb-12 ${theme.sectionAltBg} border-b ${theme.cardBorder}`}>
           <p className="text-xs uppercase tracking-[0.25em] text-slate-500">We Are Getting Married</p>
-          <h2 className="text-5xl mt-3" style={{ ...scriptStyle, color: accent }}>
+          <h2 className="text-5xl font-bold mt-3" style={{ ...scriptStyle, color: accent }}>
             {invitation.bride_nickname} & {invitation.groom_nickname}
           </h2>
           <p className="text-sm text-slate-600 mt-2">{invitation.event_date_label}</p>
