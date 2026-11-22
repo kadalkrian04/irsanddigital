@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
 
 function isAuthorized(req: Request) {
   const pass = req.headers.get("x-admin-password");
