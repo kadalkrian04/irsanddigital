@@ -53,7 +53,7 @@ function MaroonStripes({ position = "right" }: { position?: "left" | "right" }) 
 
 const IMG = "/templates/jawa-maroon";
 
-/* Ornamen Sudut Atas Kiri-Kanan (dibungkus span agar flip tidak bentrok animasi) */
+/* Ornamen Sudut Atas Kiri-Kanan */
 function SectionCorners() {
   return (
     <>
@@ -222,7 +222,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                   />
                 </span>
 
-                {/* Bunga Kanan Atas (dipisah wrapper agar pas di pojok kanan) */}
+                {/* Bunga Kanan Atas */}
                 <span className="absolute -right-4 -top-2 w-32 pointer-events-none select-none opacity-95 block">
                   <span className="block -scale-x-100">
                     <img
@@ -230,40 +230,6 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                       alt=""
                       draggable={false}
                       className="w-full h-auto block animate-jm-sway-slow origin-top-left"
-                    />
-                  </span>
-                </span>
-
-                {/* Bunga Kiri Bawah */}
-                <span className="absolute -left-2 bottom-2 w-28 pointer-events-none select-none block">
-                  <img
-                    src={`${IMG}/cat.webp`}
-                    alt=""
-                    draggable={false}
-                    className="w-full h-auto block animate-jm-bob"
-                  />
-                </span>
-
-                {/* Bunga Kanan Bawah */}
-                <span className="absolute -right-10 -bottom-8 w-32 pointer-events-none select-none opacity-90 block">
-                  <span className="block rotate-180">
-                    <img
-                      src={`${IMG}/corner-r.webp`}
-                      alt=""
-                      draggable={false}
-                      className="w-full h-auto block animate-jm-sway origin-bottom-right"
-                    />
-                  </span>
-                </span>
-
-                {/* Melati Kanan Tengah */}
-                <span className="absolute right-4 top-[47%] w-8 pointer-events-none select-none opacity-95 block">
-                  <span className="block -rotate-12">
-                    <img
-                      src={`${IMG}/melati.webp`}
-                      alt=""
-                      draggable={false}
-                      className="w-full h-auto block animate-jm-bob"
                     />
                   </span>
                 </span>
@@ -465,19 +431,19 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
               </h3>
               <img src={`${IMG}/divider.webp`} alt="" className="w-44 h-auto mx-auto my-3" />
 
-              {/* Kalender Gantung - Posisi Presisi */}
+              {/* Kalender Gantung - Titik Tengah Presisi (mengimbangi bunga di sisi kiri) */}
               <div className="relative w-72 mx-auto mt-4 select-none">
                 <img src={`${IMG}/calendar.webp`} alt="Kalender" className="w-full h-auto block" />
 
-                {/* Bulan & Tahun: tepat di tengah pita marun */}
-                <div className="absolute top-[15.2%] left-[12%] right-[12%] h-[9%] flex items-center justify-center">
+                {/* Bulan & Tahun: pas di tengah pita marun */}
+                <div className="absolute top-[15.5%] left-[10%] right-[2%] h-[9%] flex items-center justify-center">
                   <span className="text-[11px] font-bold tracking-[0.22em] text-[#FAF6F0]">
                     {calMonthYear}
                   </span>
                 </div>
 
-                {/* Hari & Tanggal: tepat di bawah hiasan belah ketupat */}
-                <div className="absolute top-[48.5%] left-[14%] right-[14%] flex flex-col items-center justify-center">
+                {/* Hari & Tanggal: pas di bawah hiasan belah ketupat */}
+                <div className="absolute top-[47%] left-[10%] right-[2%] flex flex-col items-center justify-center">
                   <span className="text-[11px] font-bold tracking-[0.26em] text-[#5C6338]">
                     {calDayName}
                   </span>
