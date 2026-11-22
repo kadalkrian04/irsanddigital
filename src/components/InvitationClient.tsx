@@ -23,40 +23,6 @@ type Props = {
   guestName: string;
 };
 
-/* Ornamen Bunga Sudut (SVG ringan) */
-function FloralCorner({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
-      <path d="M12 8 C40 42, 68 85, 86 142 C92 162, 90 185, 84 205" stroke="#5C6338" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M36 40 C65 44, 92 58, 114 82" stroke="#6E7745" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M66 96 C46 112, 34 134, 30 162" stroke="#6E7745" strokeWidth="1.5" strokeLinecap="round" />
-      <ellipse cx="64" cy="48" rx="14" ry="5.5" transform="rotate(24 64 48)" fill="#8C9266" opacity="0.9" />
-      <ellipse cx="88" cy="64" rx="13" ry="5" transform="rotate(38 88 64)" fill="#6E7745" opacity="0.85" />
-      <ellipse cx="52" cy="96" rx="15" ry="5.5" transform="rotate(-30 52 96)" fill="#8C9266" opacity="0.9" />
-      <ellipse cx="98" cy="118" rx="14" ry="5" transform="rotate(25 98 118)" fill="#6E7745" opacity="0.85" />
-      <ellipse cx="68" cy="156" rx="13" ry="4.5" transform="rotate(-45 68 156)" fill="#8C9266" opacity="0.85" />
-      <g transform="translate(34, 34)">
-        <ellipse cx="0" cy="-16" rx="9" ry="15" fill="#7E2530" opacity="0.92" />
-        <ellipse cx="15" cy="-5" rx="9" ry="15" transform="rotate(72 15 -5)" fill="#8F2D3A" opacity="0.9" />
-        <ellipse cx="10" cy="14" rx="9" ry="15" transform="rotate(144 10 14)" fill="#7E2530" opacity="0.92" />
-        <ellipse cx="-10" cy="14" rx="9" ry="15" transform="rotate(216 -10 14)" fill="#8F2D3A" opacity="0.9" />
-        <ellipse cx="-15" cy="-5" rx="9" ry="15" transform="rotate(288 -15 -5)" fill="#7E2530" opacity="0.92" />
-        <circle cx="0" cy="0" r="5" fill="#E8C58E" />
-      </g>
-      <g transform="translate(88, 128)">
-        <ellipse cx="0" cy="-12" rx="7" ry="11" fill="#E9B4B1" opacity="0.95" />
-        <ellipse cx="11" cy="-3" rx="7" ry="11" transform="rotate(72 11 -3)" fill="#F2C8C5" opacity="0.95" />
-        <ellipse cx="7" cy="10" rx="7" ry="11" transform="rotate(144 7 10)" fill="#E9B4B1" opacity="0.95" />
-        <ellipse cx="-7" cy="10" rx="7" ry="11" transform="rotate(216 -7 10)" fill="#F2C8C5" opacity="0.95" />
-        <ellipse cx="-11" cy="-3" rx="7" ry="11" transform="rotate(288 -11 -3)" fill="#E9B4B1" opacity="0.95" />
-        <circle cx="0" cy="0" r="4" fill="#7E2530" />
-      </g>
-      <circle cx="116" cy="84" r="5" fill="#7E2530" opacity="0.85" />
-      <circle cx="30" cy="166" r="4.5" fill="#8F2D3A" opacity="0.85" />
-    </svg>
-  );
-}
-
 /* Pembatas Gelombang Kertas Sobek antar Section */
 function PaperWave({ fill }: { fill: string }) {
   return (
@@ -86,6 +52,26 @@ function MaroonStripes({ position = "right" }: { position?: "left" | "right" }) 
 }
 
 const IMG = "/templates/jawa-maroon";
+
+/* Ornamen Sudut Atas Kiri-Kanan pakai gambar asli corner-l.webp */
+function SectionCorners() {
+  return (
+    <>
+      <img
+        src={`${IMG}/corner-l.webp`}
+        alt=""
+        draggable={false}
+        className="absolute -left-4 -top-2 w-24 pointer-events-none select-none opacity-90 animate-jm-sway origin-top-left"
+      />
+      <img
+        src={`${IMG}/corner-l.webp`}
+        alt=""
+        draggable={false}
+        className="absolute -right-4 -top-2 w-24 pointer-events-none select-none opacity-90 -scale-x-100 animate-jm-sway-slow origin-top-left"
+      />
+    </>
+  );
+}
 
 export default function InvitationClient({ invitation, initialWishes, guestName }: Props) {
   const isJawa = invitation.theme === "jawa-maroon";
@@ -210,7 +196,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
             <button
               onClick={toggleMusic}
               aria-label="Toggle Music"
-              className="fixed top-4 right-4 z-[60] w-10 h-10 rounded-full bg-[#4B2C2A]/70 hover:bg-[#4B2C2A] text-white shadow-lg flex items-center justify-center border border-white/25 backdrop-blur-sm transition"
+              className="fixed top-4 right-4 z-[60] w-10 h-10 rounded-full bg-[#4B2C2A]/75 hover:bg-[#4B2C2A] text-white shadow-lg flex items-center justify-center border border-white/25 backdrop-blur-sm transition"
             >
               {isPlaying ? <Music className="w-4 h-4 animate-pulse" /> : <VolumeX className="w-4 h-4" />}
             </button>
@@ -219,25 +205,44 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
           {/* 1. COVER PEMBUKA */}
           {!isOpen && (
             <div className="fixed inset-0 z-50 flex justify-center bg-[#E5DEC9]">
-              <div className="w-full max-w-md h-full relative flex flex-col justify-center items-center text-center px-6 py-8 bg-[#F4EADB] overflow-hidden">
-                {/* Ornamen Bunga 4 Sudut */}
-                <div className="absolute -left-3 -top-2 w-28 pointer-events-none">
-                  <FloralCorner className="w-full h-auto animate-jm-sway origin-top-left" />
-                </div>
-                <div className="absolute -right-3 -top-2 w-28 pointer-events-none -scale-x-100">
-                  <FloralCorner className="w-full h-auto animate-jm-sway-slow origin-top-left" />
-                </div>
-                <div className="absolute -left-4 -bottom-6 w-24 pointer-events-none -scale-y-100 opacity-85">
-                  <FloralCorner className="w-full h-auto animate-jm-sway-slow origin-top-left" />
-                </div>
-                <div className="absolute -right-4 -bottom-6 w-28 pointer-events-none rotate-180 opacity-90">
-                  <FloralCorner className="w-full h-auto animate-jm-sway origin-top-left" />
-                </div>
+              <div className="w-full max-w-md h-full relative flex flex-col justify-center items-center text-center px-6 py-7 bg-[#F4EADB] overflow-hidden">
+                {/* Ornamen 4 Sudut + Melati pakai Aset Asli */}
+                <img
+                  src={`${IMG}/corner-l.webp`}
+                  alt=""
+                  draggable={false}
+                  className="absolute -left-4 -top-2 w-32 pointer-events-none select-none opacity-95 animate-jm-sway origin-top-left"
+                />
+                <img
+                  src={`${IMG}/corner-l.webp`}
+                  alt=""
+                  draggable={false}
+                  className="absolute -right-4 -top-2 w-32 pointer-events-none select-none opacity-95 -scale-x-100 animate-jm-sway-slow origin-top-left"
+                />
+                <img
+                  src={`${IMG}/cat.webp`}
+                  alt=""
+                  draggable={false}
+                  className="absolute -left-2 bottom-2 w-28 pointer-events-none select-none animate-jm-bob"
+                />
+                <img
+                  src={`${IMG}/corner-r.webp`}
+                  alt=""
+                  draggable={false}
+                  className="absolute -right-10 -bottom-8 w-32 pointer-events-none select-none opacity-90 rotate-180 animate-jm-sway"
+                />
+                <img
+                  src={`${IMG}/melati.webp`}
+                  alt=""
+                  draggable={false}
+                  className="absolute right-4 top-[47%] w-8 pointer-events-none select-none opacity-95 -rotate-12 animate-jm-bob"
+                />
 
                 {/* Pendopo samar di bagian bawah */}
                 <img
                   src={`${IMG}/pendopo.webp`}
                   alt=""
+                  draggable={false}
                   className="absolute bottom-14 inset-x-0 w-full opacity-20 pointer-events-none select-none"
                 />
 
@@ -247,48 +252,58 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                   </p>
 
                   {/* Gambar Pasangan Pengantin Jawa Maroon */}
-                  <div className="mt-3 w-44 flex items-center justify-center animate-jm-bob">
+                  <div className="mt-3 w-44 flex items-center justify-center">
                     <img
                       src={`${IMG}/couple.webp`}
                       alt="Mempelai"
-                      className="w-full h-auto object-contain drop-shadow-[0_10px_12px_rgba(75,44,42,0.18)]"
+                      draggable={false}
+                      className="w-full h-auto object-contain drop-shadow-[0_8px_10px_rgba(75,44,42,0.18)]"
                     />
                   </div>
 
                   {/* Nama Mempelai */}
                   <div className="mt-2 leading-none">
-                    <h1 className="text-5xl text-[#7E2530]" style={scriptStyle}>
+                    <h1 className="text-[54px] leading-[1.02] text-[#7E2530]" style={scriptStyle}>
                       {invitation.bride_nickname}
                     </h1>
-                    <p className="text-3xl text-[#5C6338] my-1" style={scriptStyle}>
+                    <p className="text-[32px] leading-none text-[#5C6338] my-1.5" style={scriptStyle}>
                       &
                     </p>
-                    <h1 className="text-5xl text-[#7E2530]" style={scriptStyle}>
+                    <h1 className="text-[54px] leading-[1.02] text-[#7E2530]" style={scriptStyle}>
                       {invitation.groom_nickname}
                     </h1>
                   </div>
 
                   {/* Tanggal */}
-                  <div className="mt-3 flex items-center justify-center gap-3">
-                    <span className="w-7 h-[2px] rounded-full bg-[#8C9266]" />
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#4B2C2A]">
+                  <div className="mt-2.5 flex items-center justify-center gap-3">
+                    <span className="w-7 h-[2.5px] rounded-full bg-[#8C9266]" />
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#4B2C2A]">
                       {invitation.event_date_label}
                     </p>
-                    <span className="w-7 h-[2px] rounded-full bg-[#8C9266]" />
+                    <span className="w-7 h-[2.5px] rounded-full bg-[#8C9266]" />
                   </div>
 
-                  {/* Bingkai Nama Tamu */}
-                  <div className="mt-4 w-full relative px-6 py-3.5 bg-[#FEFBF4]/85 backdrop-blur-[2px] border border-[#9E7B73] rounded-xl shadow-xs">
-                    <div className="absolute inset-1 border border-[#9E7B73]/45 rounded-lg pointer-events-none" />
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#6A4A45]">
-                      Kepada Yth:
-                    </p>
-                    <p className="text-base font-semibold text-[#4B2C2A] mt-0.5 break-words">{guestName}</p>
+                  {/* Bingkai Nama Tamu pakai note-panel.webp */}
+                  <div className="relative w-[256px] max-w-full aspect-[900/257] mt-3 flex items-center justify-center">
+                    <img
+                      src={`${IMG}/note-panel.webp`}
+                      alt=""
+                      draggable={false}
+                      className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+                    />
+                    <div className="relative z-10 px-8 text-center">
+                      <p className="text-[9.5px] font-semibold uppercase tracking-[0.2em] text-[#6A4A45]">
+                        Kepada Yth:
+                      </p>
+                      <p className="text-base font-semibold text-[#4B2C2A] mt-0.5 leading-tight break-words">
+                        {guestName}
+                      </p>
+                    </div>
                   </div>
 
                   <button
                     onClick={handleOpenInvitation}
-                    className="mt-4 inline-flex items-center justify-center gap-2 px-9 py-3 rounded-full bg-[#7E2530] hover:bg-[#661D26] text-[#FBF1E8] text-sm font-semibold tracking-wide shadow-[0_7px_16px_rgba(75,44,42,0.28)] active:scale-95 transition cursor-pointer"
+                    className="mt-3.5 inline-flex items-center justify-center px-8 py-3 rounded-full bg-[#7E2530] hover:bg-[#661D26] text-[#FBF1E8] text-sm font-semibold tracking-wide shadow-[0_7px_16px_rgba(75,44,42,0.24)] active:scale-95 transition cursor-pointer"
                   >
                     Buka Undangan
                   </button>
@@ -299,13 +314,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
           {/* 2. HERO SECTION (KREM) */}
           <section className="relative bg-[#F4EADB] text-center px-6 pt-12 pb-14 overflow-hidden">
-            <div className="absolute -left-5 -top-3 w-24 pointer-events-none opacity-85">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-            <div className="absolute -right-5 -top-3 w-24 pointer-events-none -scale-x-100 opacity-85">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-
+            <SectionCorners />
             <div className="relative z-10 flex flex-col items-center">
               <img src={`${IMG}/pendopo.webp`} alt="Pendopo Joglo" className="w-64 h-auto mx-auto" />
 
@@ -340,13 +349,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
           {/* 3. AYAT SUCI (PINK LEMBUT) */}
           <section className="relative bg-[#F2E2DE] px-6 py-14 text-center overflow-hidden">
-            <div className="absolute -left-6 top-0 w-20 pointer-events-none opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-            <div className="absolute -right-6 top-0 w-20 pointer-events-none -scale-x-100 opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-
+            <SectionCorners />
             <div className="relative z-10 max-w-sm mx-auto">
               <img src={`${IMG}/lovebirds.webp`} alt="" className="w-44 h-auto mx-auto -mb-3 relative z-20" />
               <div className="relative bg-[#FAF6F0] px-6 py-8 rounded-sm shadow-md border border-[#E6D6C8]">
@@ -367,13 +370,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
           {/* 4. MEMPELAI BERBAHAGIA (KREM) */}
           <section className="relative bg-[#F4EADB] px-6 py-14 text-center overflow-hidden">
-            <div className="absolute -left-6 top-0 w-20 pointer-events-none opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-            <div className="absolute -right-6 top-0 w-20 pointer-events-none -scale-x-100 opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-
+            <SectionCorners />
             <div className="relative z-10">
               <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
                 Mempelai Berbahagia
@@ -428,13 +425,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
           {/* 5. MENUJU HARI BAHAGIA / KALENDER (PINK LEMBUT) */}
           <section className="relative bg-[#F2E2DE] px-6 py-14 text-center overflow-hidden">
-            <div className="absolute -left-6 top-0 w-20 pointer-events-none opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-            <div className="absolute -right-6 top-0 w-20 pointer-events-none -scale-x-100 opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-
+            <SectionCorners />
             <div className="relative z-10">
               <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#5C6338]">
                 Simpan Tanggalnya
@@ -444,19 +435,26 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
               </h3>
               <img src={`${IMG}/divider.webp`} alt="" className="w-44 h-auto mx-auto my-3" />
 
-              {/* Kalender Gantung dengan Overlay Tanggal Otomatis */}
+              {/* Kalender Gantung - Posisi Presisi */}
               <div className="relative w-72 mx-auto mt-4 select-none">
-                <img src={`${IMG}/calendar.webp`} alt="Kalender" className="w-full h-auto" />
-                <div className="absolute top-[19%] inset-x-0 text-center">
-                  <span className="text-xs font-bold tracking-[0.2em] text-[#FAF6F0]">
+                <img src={`${IMG}/calendar.webp`} alt="Kalender" className="w-full h-auto block" />
+
+                {/* Bulan & Tahun: tepat di tengah pita marun */}
+                <div className="absolute top-[15.2%] left-[12%] right-[12%] h-[9%] flex items-center justify-center">
+                  <span className="text-[11px] font-bold tracking-[0.22em] text-[#FAF6F0]">
                     {calMonthYear}
                   </span>
                 </div>
-                <div className="absolute top-[47%] inset-x-0 flex flex-col items-center">
-                  <span className="text-[11px] font-semibold tracking-[0.22em] text-[#5C6338]">
+
+                {/* Hari & Tanggal: tepat di bawah hiasan belah ketupat */}
+                <div className="absolute top-[48.5%] left-[14%] right-[14%] flex flex-col items-center justify-center">
+                  <span className="text-[11px] font-bold tracking-[0.26em] text-[#5C6338]">
                     {calDayName}
                   </span>
-                  <span className="text-5xl font-bold text-[#7E2530] mt-0.5" style={serifStyle}>
+                  <span
+                    className="text-[64px] italic font-semibold text-[#7E2530] leading-none mt-1"
+                    style={serifStyle}
+                  >
                     {calDayNum}
                   </span>
                 </div>
@@ -504,13 +502,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
           {/* 6. RANGKAIAN ACARA (KREM) */}
           <section className="relative bg-[#F4EADB] px-6 pt-14 pb-6 text-center overflow-hidden">
-            <div className="absolute -left-6 top-0 w-20 pointer-events-none opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-            <div className="absolute -right-6 top-0 w-20 pointer-events-none -scale-x-100 opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-
+            <SectionCorners />
             <div className="relative z-10 space-y-8">
               <div>
                 <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
@@ -567,7 +559,6 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                 </div>
               ))}
 
-              {/* Gapura Candi Bentar di Bawah Rangkaian Acara */}
               <img src={`${IMG}/gate.webp`} alt="Gapura Jawa" className="w-full h-auto mx-auto pt-4" />
             </div>
           </section>
@@ -576,13 +567,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
           {/* 7. KELUARGA KAMI (PINK LEMBUT) */}
           <section className="relative bg-[#F2E2DE] px-6 py-14 text-center overflow-hidden">
-            <div className="absolute -left-6 top-0 w-20 pointer-events-none opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-            <div className="absolute -right-6 top-0 w-20 pointer-events-none -scale-x-100 opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-
+            <SectionCorners />
             <div className="relative z-10">
               <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
                 Keluarga Kami
@@ -618,13 +603,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
           {bankAccounts.length > 0 && (
             <>
               <section className="relative bg-[#F4EADB] px-6 py-14 text-center overflow-hidden">
-                <div className="absolute -left-6 top-0 w-20 pointer-events-none opacity-75">
-                  <FloralCorner className="w-full h-auto" />
-                </div>
-                <div className="absolute -right-6 top-0 w-20 pointer-events-none -scale-x-100 opacity-75">
-                  <FloralCorner className="w-full h-auto" />
-                </div>
-
+                <SectionCorners />
                 <div className="relative z-10">
                   <img src={`${IMG}/gift.webp`} alt="Tanda Kasih" className="w-44 h-auto mx-auto mb-2" />
                   <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
@@ -677,13 +656,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
           {/* 9. RSVP & UCAPAN (PINK LEMBUT) */}
           <section className="relative bg-[#F2E2DE] px-6 py-14 text-center overflow-hidden">
-            <div className="absolute -left-6 top-0 w-20 pointer-events-none opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-            <div className="absolute -right-6 top-0 w-20 pointer-events-none -scale-x-100 opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-
+            <SectionCorners />
             <div className="relative z-10">
               <img src={`${IMG}/envelope.webp`} alt="RSVP" className="w-40 h-auto mx-auto mb-2" />
               <h3 className="text-4xl text-[#7E2530]" style={scriptStyle}>
@@ -694,9 +667,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                 Tinggalkan pesan untuk kami. Setiap doa yang Bapak/Ibu tuliskan akan kami baca.
               </p>
 
-              {/* Form Kertas dengan Selotip Marun di Atas */}
               <div className="relative bg-[#FAF6F0] px-5 pt-8 pb-6 rounded-sm shadow-md border border-[#E6D6C8] text-left">
-                {/* Selotip Marun */}
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-28 h-6 bg-[#7E2530]/90 -rotate-2 shadow-xs pointer-events-none" />
                 <MaroonStripes position="right" />
 
@@ -736,7 +707,6 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
                 </form>
               </div>
 
-              {/* Daftar Ucapan */}
               <div className="mt-6 space-y-3 max-h-96 overflow-y-auto text-left">
                 {wishList.length === 0 ? (
                   <p className="text-center text-xs text-[#6A4A45] py-4">
@@ -765,13 +735,7 @@ export default function InvitationClient({ invitation, initialWishes, guestName 
 
           {/* 10. FOOTER / TERIMA KASIH (KREM) */}
           <footer className="relative bg-[#F4EADB] px-6 pt-14 pb-0 text-center overflow-hidden">
-            <div className="absolute -left-6 top-0 w-20 pointer-events-none opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-            <div className="absolute -right-6 top-0 w-20 pointer-events-none -scale-x-100 opacity-75">
-              <FloralCorner className="w-full h-auto" />
-            </div>
-
+            <SectionCorners />
             <div className="relative z-10 flex flex-col items-center">
               <img src={`${IMG}/couple.webp`} alt="Mempelai" className="w-44 h-auto mx-auto" />
 
