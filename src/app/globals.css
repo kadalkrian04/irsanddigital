@@ -24,3 +24,33 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes jm-sway {
+  0% {
+    transform: rotate(-2.5deg) translateY(0px);
+  }
+  100% {
+    transform: rotate(2.5deg) translateY(3px);
+  }
+}
+
+@keyframes jm-bob {
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-jm-sway {
+  animation: jm-sway 7s ease-in-out infinite alternate;
+}
+
+.animate-jm-sway-slow {
+  animation: jm-sway 9s ease-in-out infinite alternate-reverse;
+}
+
+.animate-jm-bob {
+  animation: jm-bob 5s ease-in-out infinite alternate;
+}

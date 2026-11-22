@@ -10,6 +10,16 @@ export type ThemeConfig = {
 };
 
 export const THEMES: Record<string, ThemeConfig> = {
+  "jawa-maroon": {
+    id: "jawa-maroon",
+    name: "Jawa Maroon (Adat Jawa Krem & Marun)",
+    accentHex: "#7E2530",
+    outerBg: "bg-[#E6DEC8]",
+    sectionAltBg: "bg-[#F4EADB]",
+    cardBorder: "border-[#D8C5B0]",
+    badgeBg: "bg-[#7E2530]/10",
+    badgeText: "text-[#7E2530]",
+  },
   "classic-gold": {
     id: "classic-gold",
     name: "Classic Gold (Putih & Emas)",
@@ -43,5 +53,5 @@ export const THEMES: Record<string, ThemeConfig> = {
 };
 
 export function getTheme(themeId?: string): ThemeConfig {
-  return THEMES[themeId || "classic-gold"] || THEMES["classic-gold"];
+  return THEMES[themeId || "jawa-maroon"] || THEMES["jawa-maroon"];
 }
