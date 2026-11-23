@@ -7,7 +7,7 @@ import { THEMES } from "@/lib/themes";
 
 const EMPTY_FORM = {
   slug: "",
-  theme: "royal-blue",
+  theme: "jawa-maroon",
   music_url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3",
   cover_image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80",
   groom_nickname: "",
@@ -24,12 +24,12 @@ const EMPTY_FORM = {
   akad_time: "08.00 - 10.00 WIB",
   akad_venue: "",
   akad_address: "",
-  akad_map_url: "https://maps.google.com",
+  akad_map_url: "",
   resepsi_date: "Minggu, 20 Desember 2026",
   resepsi_time: "11.00 - 14.00 WIB",
   resepsi_venue: "",
   resepsi_address: "",
-  resepsi_map_url: "https://maps.google.com",
+  resepsi_map_url: "",
   bank_name: "BCA",
   bank_number: "",
   bank_holder: "",
@@ -98,6 +98,8 @@ export default function AdminPage() {
     try {
       const payload = {
         ...form,
+        akad_map_url: form.akad_map_url || "https://maps.google.com",
+        resepsi_map_url: form.resepsi_map_url || "https://maps.google.com",
         bank_accounts: form.bank_number
           ? [{ bank: form.bank_name, accountNumber: form.bank_number, accountName: form.bank_holder }]
           : [],
@@ -145,12 +147,12 @@ export default function AdminPage() {
       akad_time: c.akad_time,
       akad_venue: c.akad_venue,
       akad_address: c.akad_address,
-      akad_map_url: c.akad_map_url,
+      akad_map_url: c.akad_map_url || "",
       resepsi_date: c.resepsi_date,
       resepsi_time: c.resepsi_time,
       resepsi_venue: c.resepsi_venue,
       resepsi_address: c.resepsi_address,
-      resepsi_map_url: c.resepsi_map_url,
+      resepsi_map_url: c.resepsi_map_url || "",
       bank_name: firstBank?.bank || "BCA",
       bank_number: firstBank?.accountNumber || "",
       bank_holder: firstBank?.accountName || "",
@@ -299,6 +301,10 @@ export default function AdminPage() {
               </select>
             </div>
 
+            {/* DATA MEMPELAI */}
+            <div className="md:col-span-2 pt-2 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Data Mempelai</p>
+            </div>
             <input required placeholder="Panggilan Pria (contoh: Dika)" value={form.groom_nickname} onChange={(e) => setForm({ ...form, groom_nickname: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
             <input required placeholder="Nama Lengkap Pria" value={form.groom_full_name} onChange={(e) => setForm({ ...form, groom_full_name: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
             <input placeholder="Orang Tua Pria" value={form.groom_parents} onChange={(e) => setForm({ ...form, groom_parents: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
@@ -309,14 +315,43 @@ export default function AdminPage() {
             <input placeholder="Orang Tua Wanita" value={form.bride_parents} onChange={(e) => setForm({ ...form, bride_parents: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
             <input placeholder="URL Foto Wanita (opsional)" value={form.bride_photo} onChange={(e) => setForm({ ...form, bride_photo: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
 
-            <input placeholder="Tanggal Tampil (Minggu, 20 Des 2026)" value={form.event_date_label} onChange={(e) => setForm({ ...form, event_date_label: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="ISO Countdown (2026-12-20T08:00:00+07:00)" value={form.event_date_iso} onChange={(e) => setForm({ ...form, event_date_iso: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            {/* TANGGAL UTAMA COVER & COUNTDOWN */}
+            <div className="md:col-span-2 pt-2 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Tanggal Cover & Countdown</p>
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Teks Tanggal di Cover</label>
+              <input placeholder="Minggu, 20 Desember 2026" value={form.event_date_label} onChange={(e) => setForm({ ...form, event_date_label: e.target.value })} className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Format Countdown & Kalender (ISO)</label>
+              <input placeholder="2026-12-20T08:00:00+07:00" value={form.event_date_iso} onChange={(e) => setForm({ ...form, event_date_iso: e.target.value })} className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            </div>
 
-            <input placeholder="Tempat Akad" value={form.akad_venue} onChange={(e) => setForm({ ...form, akad_venue: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Alamat Akad" value={form.akad_address} onChange={(e) => setForm({ ...form, akad_address: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Tempat Resepsi" value={form.resepsi_venue} onChange={(e) => setForm({ ...form, resepsi_venue: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Alamat Resepsi" value={form.resepsi_address} onChange={(e) => setForm({ ...form, resepsi_address: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            {/* DETAIL AKAD NIKAH */}
+            <div className="md:col-span-2 pt-2 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Detail Akad Nikah</p>
+            </div>
+            <input placeholder="Tanggal Akad (contoh: Minggu, 20 Desember 2026)" value={form.akad_date} onChange={(e) => setForm({ ...form, akad_date: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Jam Akad (contoh: 08.00 - 10.00 WIB)" value={form.akad_time} onChange={(e) => setForm({ ...form, akad_time: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Tempat Akad (contoh: Rumah Mempelai Wanita)" value={form.akad_venue} onChange={(e) => setForm({ ...form, akad_venue: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Alamat Lengkap Akad" value={form.akad_address} onChange={(e) => setForm({ ...form, akad_address: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Link Google Maps Akad (https://maps.google.com/...)" value={form.akad_map_url} onChange={(e) => setForm({ ...form, akad_map_url: e.target.value })} className="md:col-span-2 px-3 py-2 rounded-xl border border-slate-300 text-base" />
 
+            {/* DETAIL RESEPSI */}
+            <div className="md:col-span-2 pt-2 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Detail Resepsi</p>
+            </div>
+            <input placeholder="Tanggal Resepsi (contoh: Minggu, 20 Desember 2026)" value={form.resepsi_date} onChange={(e) => setForm({ ...form, resepsi_date: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Jam Resepsi (contoh: 11.00 - 14.00 WIB)" value={form.resepsi_time} onChange={(e) => setForm({ ...form, resepsi_time: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Tempat Resepsi (contoh: Rumah Mempelai Wanita)" value={form.resepsi_venue} onChange={(e) => setForm({ ...form, resepsi_venue: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Alamat Lengkap Resepsi" value={form.resepsi_address} onChange={(e) => setForm({ ...form, resepsi_address: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Link Google Maps Resepsi (https://maps.google.com/...)" value={form.resepsi_map_url} onChange={(e) => setForm({ ...form, resepsi_map_url: e.target.value })} className="md:col-span-2 px-3 py-2 rounded-xl border border-slate-300 text-base" />
+
+            {/* AMPLOP DIGITAL & MUSIK */}
+            <div className="md:col-span-2 pt-2 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Amplop Digital & Musik</p>
+            </div>
             <input placeholder="Nama Bank (BCA / BRI / Mandiri)" value={form.bank_name} onChange={(e) => setForm({ ...form, bank_name: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
             <input placeholder="Nomor Rekening" value={form.bank_number} onChange={(e) => setForm({ ...form, bank_number: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
             <input placeholder="Atas Nama Rekening" value={form.bank_holder} onChange={(e) => setForm({ ...form, bank_holder: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
