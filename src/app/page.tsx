@@ -45,7 +45,7 @@ export default function HomePage() {
               <a href="#tema" className="hover:text-white transition">
                 Tema
               </a>
-              <Link href="/u/dika?to=Tamu+VIP" className="hover:text-white transition">
+              <Link href="/u/erga-fera?to=Tamu+Undangan" className="hover:text-white transition">
                 Demo
               </Link>
             </div>
@@ -58,7 +58,7 @@ export default function HomePage() {
                 Login
               </Link>
               <Link
-                href="/u/dika?to=Tamu+VIP"
+                href="/u/erga-fera?to=Tamu+Undangan"
                 className="rounded-full bg-white hover:bg-blue-50 px-4 py-1.5 text-xs font-semibold text-slate-900 shadow-xs transition"
               >
                 Lihat Demo
@@ -91,7 +91,7 @@ export default function HomePage() {
           <div className="mt-7 flex flex-col items-center justify-center gap-3">
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/u/dika?to=Tamu+VIP"
+                href="/u/erga-fera?to=Tamu+Undangan"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-lg shadow-blue-950/15 hover:bg-blue-50 active:scale-95 transition"
               >
                 <ExternalLink className="h-4 w-4 text-blue-600" />
@@ -125,7 +125,7 @@ export default function HomePage() {
                 irsanddigital.vercel.app/u/dika
               </div>
               <Link
-                href="/u/dika?to=Tamu+VIP"
+                href="/u/erga-fera?to=Tamu+Undangan"
                 className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 transition"
               >
                 <Send className="h-3 w-3" /> Buka
