@@ -255,7 +255,6 @@ export default function UserDashboardPage() {
     );
   }
 
-  // LAYAR TERKUNCI JIKA BELUM AKTIF
   if (!user.has_access) {
     const waMsg = encodeURIComponent(
       `Halo Admin IrsandDigital, saya *${user.name}* (${user.email}) ingin melakukan pembayaran untuk aktivasi akses pembuatan undangan digital.`
@@ -351,6 +350,7 @@ export default function UserDashboardPage() {
             <span>Tamu Unlimited</span>
           </div>
         </div>
+      </div>
 
       <div className="max-w-5xl mx-auto px-4 -mt-2 space-y-8 relative z-10">
         {/* FORM BUAT / EDIT UNDANGAN */}
