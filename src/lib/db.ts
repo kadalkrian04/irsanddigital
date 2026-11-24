@@ -6,6 +6,16 @@ export function getDb() {
   return neon(url);
 }
 
+export type UserRow = {
+  id: number;
+  name: string;
+  email: string;
+  whatsapp: string;
+  role: "admin" | "user";
+  has_access: boolean;
+  created_at: string;
+};
+
 export type BankAccount = {
   bank: string;
   accountNumber: string;
@@ -14,6 +24,7 @@ export type BankAccount = {
 
 export type InvitationRow = {
   id: number;
+  user_id: number | null;
   slug: string;
   theme: string;
   music_url: string;

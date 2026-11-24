@@ -1,22 +1,41 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-
-
-function isAuthorized(req: Request) {
-  const pass = req.headers.get("x-admin-password");
-  return pass === (process.env.ADMIN_PASSWORD || "admin123");
-}
+import { getAuthUser } from "@/lib/auth";
 
 export async function GET(req: Request) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = getAuthUser(req);
+  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const sql = getDb();
-  const rows = await sql`SELECT * FROM invitations ORDER BY created_at DESC`;
+  if (auth.role === "admin") {
+    const rows = await sql`SELECT * FROM invitations ORDER BY created_at DESC`;
+    return NextResponse.json(rows);
+  }
+
+  const rows = await sql`
+    SELECT * FROM invitations WHERE user_id = ${auth.id} ORDER BY created_at DESC
+  `;
   return NextResponse.json(rows);
 }
 
 export async function POST(req: Request) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = getAuthUser(req);
+  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   try {
+    const sql = getDb();
+
+    // Cek apakah user biasa sudah diberi akses oleh admin
+    if (auth.role !== "admin") {
+      const userRows = await sql`SELECT has_access FROM users WHERE id = ${auth.id} LIMIT 1`;
+      if (!userRows[0]?.has_access) {
+        return NextResponse.json(
+          { error: "Akun Anda belum aktif. Silakan hubungi admin untuk aktivasi." },
+          { status: 403 }
+        );
+      }
+    }
+
     const b = await req.json();
     const slug = String(b.slug || "")
       .toLowerCase()
@@ -27,13 +46,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Slug & nama panggilan mempelai wajib diisi" }, { status: 400 });
     }
 
-    const sql = getDb();
+    // Cek kepemilikan slug agar user tidak menimpa undangan orang lain
+    const existing = await sql`SELECT id, user_id FROM invitations WHERE slug = ${slug} LIMIT 1`;
+    if (existing.length > 0 && auth.role !== "admin" && existing[0].user_id !== auth.id) {
+      return NextResponse.json(
+        { error: "Slug URL sudah dipakai orang lain. Gunakan nama lain." },
+        { status: 409 }
+      );
+    }
+
+    const ownerId = auth.role === "admin" ? (existing[0]?.user_id ?? null) : auth.id;
     const bankJson = JSON.stringify(b.bank_accounts || []);
     const galleryJson = JSON.stringify(b.gallery || []);
 
     const rows = await sql`
       INSERT INTO invitations (
-        slug, theme, music_url, cover_image,
+        user_id, slug, theme, music_url, cover_image,
         groom_nickname, groom_full_name, groom_parents, groom_photo,
         bride_nickname, bride_full_name, bride_parents, bride_photo,
         event_date_iso, event_date_label,
@@ -41,7 +69,7 @@ export async function POST(req: Request) {
         resepsi_date, resepsi_time, resepsi_venue, resepsi_address, resepsi_map_url,
         bank_accounts, gallery
       ) VALUES (
-        ${slug}, ${b.theme || "classic-gold"}, ${b.music_url || ""}, ${b.cover_image || ""},
+        ${ownerId}, ${slug}, ${b.theme || "jawa-maroon"}, ${b.music_url || ""}, ${b.cover_image || ""},
         ${b.groom_nickname}, ${b.groom_full_name || b.groom_nickname}, ${b.groom_parents || ""}, ${b.groom_photo || ""},
         ${b.bride_nickname}, ${b.bride_full_name || b.bride_nickname}, ${b.bride_parents || ""}, ${b.bride_photo || ""},
         ${b.event_date_iso || "2026-12-20T08:00:00+07:00"}, ${b.event_date_label || ""},
@@ -81,17 +109,23 @@ export async function POST(req: Request) {
     return NextResponse.json(rows[0], { status: 201 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Gagal menyimpan data klien" }, { status: 500 });
+    return NextResponse.json({ error: "Gagal menyimpan data undangan" }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = getAuthUser(req);
+  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { searchParams } = new URL(req.url);
   const id = Number(searchParams.get("id"));
   if (!id) return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
 
   const sql = getDb();
-  await sql`DELETE FROM invitations WHERE id = ${id}`;
+  if (auth.role === "admin") {
+    await sql`DELETE FROM invitations WHERE id = ${id}`;
+  } else {
+    await sql`DELETE FROM invitations WHERE id = ${id} AND user_id = ${auth.id}`;
+  }
   return NextResponse.json({ deleted: true });
 }
