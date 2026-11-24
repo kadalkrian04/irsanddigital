@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Plus,
   Trash2,
@@ -15,12 +16,23 @@ import {
   CheckCircle2,
   XCircle,
   RefreshCw,
+  Heart,
+  Sparkles,
+  Home,
 } from "lucide-react";
 import type { InvitationRow, GuestRow, UserRow } from "@/lib/db";
 import { THEMES } from "@/lib/themes";
 
 // Ganti dengan nomor WhatsApp Admin kamu (format 628xxx)
-const ADMIN_WA = "628988882052";
+const ADMIN_WA = "6281234567890";
+
+const INPUT_CLASS =
+  "w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition";
+
+const STAR_BG = {
+  backgroundImage:
+    "radial-gradient(1.5px 1.5px at 14% 22%, #ffffff 90%, transparent), radial-gradient(2px 2px at 82% 18%, #ffffff 90%, transparent), radial-gradient(1.5px 1.5px at 28% 48%, #ffffff 90%, transparent), radial-gradient(2px 2px at 74% 42%, #ffffff 90%, transparent), radial-gradient(1.5px 1.5px at 90% 35%, #ffffff 90%, transparent), radial-gradient(1.5px 1.5px at 8% 40%, #ffffff 90%, transparent), radial-gradient(2px 2px at 60% 15%, #ffffff 90%, transparent)",
+};
 
 const EMPTY_FORM = {
   slug: "",
@@ -53,7 +65,6 @@ const EMPTY_FORM = {
 };
 
 export default function DashboardPage() {
-  // Auth state
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [token, setToken] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<UserRow | null>(null);
@@ -351,119 +362,170 @@ export default function DashboardPage() {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-blue-50 flex items-center justify-center text-sm text-slate-500">
+      <div className="min-h-screen bg-gradient-to-b from-[#69B4FF] via-[#7C9BFF] to-white flex items-center justify-center text-sm font-medium text-white">
         Memuat sesi...
       </div>
     );
   }
 
-  /* ==================== HALAMAN LOGIN & REGISTER GABUNGAN ==================== */
+  /* ==================== HALAMAN LOGIN & REGISTER (TEMA HALAMAN UTAMA) ==================== */
   if (!token || !currentUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-        <div className="bg-white p-7 rounded-2xl shadow-sm border border-blue-100 w-full max-w-sm space-y-5">
-          <div className="text-center">
-            <h1 className="text-xl font-bold text-slate-900">IrsandDigital</h1>
-            <p className="text-xs text-slate-500 mt-1">Masuk atau daftar akun untuk membuat undangan</p>
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#69B4FF] via-[#7C9BFF] to-white text-slate-900">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-70" style={STAR_BG} />
+
+        {/* FLOATING PILL NAVBAR */}
+        <header className="relative z-20 mx-auto max-w-2xl px-4 pt-6 sm:pt-8">
+          <nav className="flex items-center justify-between gap-2 rounded-full bg-slate-900/90 px-3 py-2 text-white shadow-xl backdrop-blur-md border border-white/10">
+            <Link href="/" className="flex items-center gap-2 pl-1">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 shadow-inner">
+                <Heart className="h-4 w-4 fill-white text-white" />
+              </span>
+              <span className="text-sm font-bold tracking-tight">IrsandDigital</span>
+            </Link>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/10 hover:bg-white/20 px-4 py-1.5 text-xs font-medium text-white transition"
+            >
+              <Home className="h-3.5 w-3.5" /> Beranda
+            </Link>
+          </nav>
+        </header>
+
+        {/* FORM CARD */}
+        <div className="relative z-10 flex flex-col items-center justify-center px-4 pt-12 pb-16">
+          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-900/20 ring-4 ring-white/25">
+            <Sparkles className="h-7 w-7" />
           </div>
 
-          <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl">
-            <button
-              type="button"
-              onClick={() => { setAuthTab("login"); setAuthError(""); }}
-              className={`py-2 rounded-lg text-xs font-semibold transition ${
-                authTab === "login" ? "bg-white text-blue-700 shadow-xs" : "text-slate-600"
-              }`}
-            >
-              Masuk
-            </button>
-            <button
-              type="button"
-              onClick={() => { setAuthTab("register"); setAuthError(""); }}
-              className={`py-2 rounded-lg text-xs font-semibold transition ${
-                authTab === "register" ? "bg-white text-blue-700 shadow-xs" : "text-slate-600"
-              }`}
-            >
-              Daftar Akun
-            </button>
-          </div>
-
-          {authError && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700">
-              {authError}
+          <div className="w-full max-w-md rounded-3xl border border-white/70 bg-white/95 backdrop-blur-md p-7 sm:p-8 shadow-2xl shadow-blue-950/15 space-y-5">
+            <div className="text-center">
+              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                {authTab === "login" ? "Selamat Datang Kembali" : "Buat Akun Baru"}
+              </h1>
+              <p className="text-xs text-slate-500 mt-1">
+                {authTab === "login"
+                  ? "Masuk untuk mengelola undangan digital Anda"
+                  : "Daftar sekarang untuk mulai membuat undangan digital"}
+              </p>
             </div>
-          )}
 
-          {authTab === "login" ? (
-            <form onSubmit={handleLogin} className="space-y-3">
-              <input
-                type="text"
-                required
-                placeholder="Email (atau ketik: admin)"
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-base"
-              />
-              <input
-                type="password"
-                required
-                placeholder="Password"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-base"
-              />
+            <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-2xl">
               <button
-                type="submit"
-                disabled={authLoading}
-                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm disabled:opacity-50"
+                type="button"
+                onClick={() => { setAuthTab("login"); setAuthError(""); }}
+                className={`py-2.5 rounded-xl text-xs font-bold transition ${
+                  authTab === "login" ? "bg-white text-blue-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                }`}
               >
-                {authLoading ? "Memproses..." : "Masuk Dashboard"}
+                Masuk
               </button>
-            </form>
-          ) : (
-            <form onSubmit={handleRegister} className="space-y-3">
-              <input
-                type="text"
-                required
-                placeholder="Nama Lengkap"
-                value={regName}
-                onChange={(e) => setRegName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-base"
-              />
-              <input
-                type="email"
-                required
-                placeholder="Email Aktif"
-                value={regEmail}
-                onChange={(e) => setRegEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-base"
-              />
-              <input
-                type="tel"
-                required
-                placeholder="Nomor WhatsApp (08xxx)"
-                value={regWa}
-                onChange={(e) => setRegWa(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-base"
-              />
-              <input
-                type="password"
-                required
-                minLength={6}
-                placeholder="Password (min. 6 karakter)"
-                value={regPassword}
-                onChange={(e) => setRegPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-base"
-              />
               <button
-                type="submit"
-                disabled={authLoading}
-                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm disabled:opacity-50"
+                type="button"
+                onClick={() => { setAuthTab("register"); setAuthError(""); }}
+                className={`py-2.5 rounded-xl text-xs font-bold transition ${
+                  authTab === "register" ? "bg-white text-blue-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                }`}
               >
-                {authLoading ? "Mendaftar..." : "Daftar Sekarang"}
+                Daftar Akun
               </button>
-            </form>
-          )}
+            </div>
+
+            {authError && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs font-medium text-red-700">
+                {authError}
+              </div>
+            )}
+
+            {authTab === "login" ? (
+              <form onSubmit={handleLogin} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email / Username</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Email Anda (atau ketik: admin)"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Masukkan password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 disabled:opacity-50 transition mt-2"
+                >
+                  {authLoading ? "Memproses..." : "Masuk Dashboard"}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleRegister} className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contoh: Budi Santoso"
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email Aktif</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="nama@email.com"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Nomor WhatsApp</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="0812xxxxxxxx"
+                    value={regWa}
+                    onChange={(e) => setRegWa(e.target.value)}
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    placeholder="Minimal 6 karakter"
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 disabled:opacity-50 transition mt-2"
+                >
+                  {authLoading ? "Mendaftar..." : "Daftar Sekarang"}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -475,42 +537,48 @@ export default function DashboardPage() {
       `Halo Admin IrsandDigital, saya *${currentUser.name}* (${currentUser.email}) ingin melakukan pembayaran untuk aktivasi akses pembuatan undangan digital.`
     );
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        <header className="bg-white border-b border-slate-200">
-          <div className="max-w-3xl mx-auto px-4 py-3.5 flex items-center justify-between">
-            <h1 className="text-base font-bold text-blue-700">IrsandDigital</h1>
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#69B4FF] via-[#7C9BFF] to-white text-slate-900">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-70" style={STAR_BG} />
+
+        <header className="relative z-20 mx-auto max-w-3xl px-4 pt-6">
+          <nav className="flex items-center justify-between gap-2 rounded-full bg-slate-900/90 px-3 py-2 text-white shadow-xl backdrop-blur-md border border-white/10">
+            <Link href="/" className="flex items-center gap-2 pl-1">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-indigo-600">
+                <Heart className="h-4 w-4 fill-white text-white" />
+              </span>
+              <span className="text-sm font-bold">IrsandDigital</span>
+            </Link>
             <button
               onClick={handleLogout}
-              className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center gap-1.5"
+              className="rounded-full bg-white/10 hover:bg-white/20 px-4 py-1.5 text-xs font-medium text-white flex items-center gap-1.5 transition"
             >
               <LogOut className="w-3.5 h-3.5" /> Keluar
             </button>
-          </div>
+          </nav>
         </header>
 
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 p-7 text-center shadow-xs space-y-4">
-            <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
-              <Lock className="w-6 h-6" />
+        <div className="relative z-10 flex items-center justify-center px-4 pt-16 pb-16">
+          <div className="max-w-md w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/70 p-8 text-center shadow-2xl shadow-blue-950/15 space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
+              <Lock className="w-7 h-7" />
             </div>
-            <h2 className="text-lg font-bold text-slate-900">Akses Pembuatan Undangan Terkunci</h2>
+            <h2 className="text-xl font-extrabold text-slate-900">Akses Pembuatan Undangan Terkunci</h2>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Halo <strong>{currentUser.name}</strong>, akun Anda sudah terdaftar. Untuk mulai
-              membuat undangan digital, silakan lakukan pembayaran dan konfirmasi ke Admin terlebih
-              dahulu.
+              Halo <strong className="text-slate-900">{currentUser.name}</strong>, akun Anda sudah terdaftar.
+              Untuk mulai membuat undangan digital, silakan lakukan pembayaran dan konfirmasi ke Admin terlebih dahulu.
             </p>
             <div className="flex flex-col gap-2.5 pt-2">
               <a
                 href={`https://wa.me/${ADMIN_WA}?text=${waMsg}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-md transition"
               >
                 <Send className="w-4 h-4" /> Hubungi Admin via WhatsApp
               </a>
               <button
                 onClick={() => loadSession(token)}
-                className="w-full py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
               >
                 <RefreshCw className="w-3.5 h-3.5" /> Cek Status Akses
               </button>
@@ -523,32 +591,49 @@ export default function DashboardPage() {
 
   /* ==================== DASHBOARD UTAMA (ADMIN & USER AKTIF) ==================== */
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 pb-16">
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div>
-            <h1 className="text-base sm:text-lg font-bold text-blue-700">
-              {currentUser.role === "admin" ? "Admin Undangan Digital" : "Dashboard Undangan Saya"}
-            </h1>
-            <p className="text-[11px] text-slate-500">
-              Login sebagai: {currentUser.name} ({currentUser.email})
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center gap-1.5"
-          >
-            <LogOut className="w-3.5 h-3.5" /> Keluar
-          </button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-16">
+      {/* HEADER GRADASI BIRU LANGIT + FLOATING NAVBAR */}
+      <div className="relative overflow-hidden bg-gradient-to-b from-[#69B4FF] via-[#7C9BFF] to-slate-50 pt-6 pb-10">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60" style={STAR_BG} />
 
-      <div className="max-w-5xl mx-auto px-4 mt-6 space-y-8">
+        <header className="relative z-20 mx-auto max-w-5xl px-4">
+          <nav className="flex items-center justify-between gap-2 rounded-full bg-slate-900/90 px-3 py-2 text-white shadow-xl backdrop-blur-md border border-white/10">
+            <Link href="/" className="flex items-center gap-2 pl-1">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-indigo-600">
+                <Heart className="h-4 w-4 fill-white text-white" />
+              </span>
+              <span className="text-sm font-bold tracking-tight">IrsandDigital</span>
+            </Link>
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline text-xs text-slate-300 pr-2">
+                {currentUser.name} ({currentUser.role === "admin" ? "Admin" : "Member"})
+              </span>
+              <button
+                onClick={handleLogout}
+                className="rounded-full bg-white/10 hover:bg-white/20 px-4 py-1.5 text-xs font-semibold text-white flex items-center gap-1.5 transition"
+              >
+                <LogOut className="w-3.5 h-3.5" /> Keluar
+              </button>
+            </div>
+          </nav>
+        </header>
+
+        <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 text-center">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white drop-shadow-xs">
+            {currentUser.role === "admin" ? "Panel Admin Undangan Digital" : "Dashboard Undangan Saya"}
+          </h1>
+          <p className="text-xs sm:text-sm text-white/90 mt-1">
+            Kelola tema, data mempelai, lokasi maps, amplop digital, dan daftar tamu dalam satu tempat.
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 -mt-2 space-y-8 relative z-10">
         {/* KHUSUS ADMIN: MANAJEMEN AKSES USER */}
         {currentUser.role === "admin" && (
-          <section className="bg-white rounded-2xl border border-blue-200 p-6 shadow-xs">
-            <h2 className="text-base font-bold text-blue-700 mb-4 flex items-center gap-2">
-              <Users className="w-4 h-4" />
+          <section className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+            <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <Users className="w-4 h-4 text-blue-600" />
               Daftar Akun User ({usersList.length}) — Aktivasi Akses Setelah Bayar
             </h2>
             {usersList.length === 0 ? (
@@ -558,29 +643,29 @@ export default function DashboardPage() {
                 {usersList.map((u) => (
                   <div
                     key={u.id}
-                    className="p-3.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-sm text-slate-800">{u.name}</p>
+                        <p className="font-bold text-sm text-slate-900">{u.name}</p>
                         {u.has_access ? (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold flex items-center gap-1">
+                          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" /> Aktif
                           </span>
                         ) : (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold flex items-center gap-1">
+                          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold flex items-center gap-1">
                             <XCircle className="w-3 h-3" /> Belum Aktif
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <p className="text-xs text-slate-600 mt-0.5">
                         {u.email} {u.whatsapp ? `• WA: ${u.whatsapp}` : ""}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => toggleUserAccess(u)}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white transition ${
+                        className={`px-4 py-2 rounded-full text-xs font-semibold text-white transition ${
                           u.has_access
                             ? "bg-amber-600 hover:bg-amber-700"
                             : "bg-emerald-600 hover:bg-emerald-700"
@@ -590,7 +675,7 @@ export default function DashboardPage() {
                       </button>
                       <button
                         onClick={() => deleteUser(u.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50"
+                        className="p-2 rounded-full text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -603,28 +688,28 @@ export default function DashboardPage() {
         )}
 
         {/* FORM TAMBAH / EDIT UNDANGAN */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
-          <h2 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <section className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+          <h2 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
             <Plus className="w-4 h-4 text-blue-600" />
             Buat / Edit Undangan
           </h2>
           <form onSubmit={handleSaveClient} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-medium text-slate-600">Slug URL (contoh: dika-rani)</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Slug URL (contoh: dika-rani)</label>
               <input
                 required
                 value={form.slug}
                 onChange={(e) => setForm({ ...form, slug: e.target.value })}
                 placeholder="dika-rani"
-                className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-base"
+                className={INPUT_CLASS}
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600">Tema Undangan</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Tema Undangan</label>
               <select
                 value={form.theme}
                 onChange={(e) => setForm({ ...form, theme: e.target.value })}
-                className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-base bg-white"
+                className={INPUT_CLASS}
               >
                 {Object.values(THEMES).map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -632,63 +717,63 @@ export default function DashboardPage() {
               </select>
             </div>
 
-            <div className="md:col-span-2 pt-2 border-t border-slate-100">
-              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Data Mempelai</p>
+            <div className="md:col-span-2 pt-3 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-600">Data Mempelai</p>
             </div>
-            <input required placeholder="Panggilan Pria" value={form.groom_nickname} onChange={(e) => setForm({ ...form, groom_nickname: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input required placeholder="Nama Lengkap Pria" value={form.groom_full_name} onChange={(e) => setForm({ ...form, groom_full_name: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Orang Tua Pria" value={form.groom_parents} onChange={(e) => setForm({ ...form, groom_parents: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="URL Foto Pria (opsional)" value={form.groom_photo} onChange={(e) => setForm({ ...form, groom_photo: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input required placeholder="Panggilan Pria (contoh: Dika)" value={form.groom_nickname} onChange={(e) => setForm({ ...form, groom_nickname: e.target.value })} className={INPUT_CLASS} />
+            <input required placeholder="Nama Lengkap Pria" value={form.groom_full_name} onChange={(e) => setForm({ ...form, groom_full_name: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Orang Tua Pria" value={form.groom_parents} onChange={(e) => setForm({ ...form, groom_parents: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="URL Foto Pria (opsional)" value={form.groom_photo} onChange={(e) => setForm({ ...form, groom_photo: e.target.value })} className={INPUT_CLASS} />
 
-            <input required placeholder="Panggilan Wanita" value={form.bride_nickname} onChange={(e) => setForm({ ...form, bride_nickname: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input required placeholder="Nama Lengkap Wanita" value={form.bride_full_name} onChange={(e) => setForm({ ...form, bride_full_name: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Orang Tua Wanita" value={form.bride_parents} onChange={(e) => setForm({ ...form, bride_parents: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="URL Foto Wanita (opsional)" value={form.bride_photo} onChange={(e) => setForm({ ...form, bride_photo: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input required placeholder="Panggilan Wanita (contoh: Rani)" value={form.bride_nickname} onChange={(e) => setForm({ ...form, bride_nickname: e.target.value })} className={INPUT_CLASS} />
+            <input required placeholder="Nama Lengkap Wanita" value={form.bride_full_name} onChange={(e) => setForm({ ...form, bride_full_name: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Orang Tua Wanita" value={form.bride_parents} onChange={(e) => setForm({ ...form, bride_parents: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="URL Foto Wanita (opsional)" value={form.bride_photo} onChange={(e) => setForm({ ...form, bride_photo: e.target.value })} className={INPUT_CLASS} />
 
-            <div className="md:col-span-2 pt-2 border-t border-slate-100">
-              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Tanggal Cover & Countdown</p>
+            <div className="md:col-span-2 pt-3 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-600">Tanggal Cover & Countdown</p>
             </div>
-            <input placeholder="Teks Tanggal di Cover (Minggu, 20 Des 2026)" value={form.event_date_label} onChange={(e) => setForm({ ...form, event_date_label: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="ISO Countdown (2026-12-20T08:00:00+07:00)" value={form.event_date_iso} onChange={(e) => setForm({ ...form, event_date_iso: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Teks Tanggal di Cover (Minggu, 20 Desember 2026)" value={form.event_date_label} onChange={(e) => setForm({ ...form, event_date_label: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Format Countdown ISO (2026-12-20T08:00:00+07:00)" value={form.event_date_iso} onChange={(e) => setForm({ ...form, event_date_iso: e.target.value })} className={INPUT_CLASS} />
 
-            <div className="md:col-span-2 pt-2 border-t border-slate-100">
-              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Detail Akad Nikah</p>
+            <div className="md:col-span-2 pt-3 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-600">Detail Akad Nikah</p>
             </div>
-            <input placeholder="Tanggal Akad" value={form.akad_date} onChange={(e) => setForm({ ...form, akad_date: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Jam Akad (08.00 - 10.00 WIB)" value={form.akad_time} onChange={(e) => setForm({ ...form, akad_time: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Tempat Akad" value={form.akad_venue} onChange={(e) => setForm({ ...form, akad_venue: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Alamat Akad" value={form.akad_address} onChange={(e) => setForm({ ...form, akad_address: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Link Google Maps Akad (https://maps.google.com/...)" value={form.akad_map_url} onChange={(e) => setForm({ ...form, akad_map_url: e.target.value })} className="md:col-span-2 px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Tanggal Akad" value={form.akad_date} onChange={(e) => setForm({ ...form, akad_date: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Jam Akad (08.00 - 10.00 WIB)" value={form.akad_time} onChange={(e) => setForm({ ...form, akad_time: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Tempat Akad" value={form.akad_venue} onChange={(e) => setForm({ ...form, akad_venue: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Alamat Lengkap Akad" value={form.akad_address} onChange={(e) => setForm({ ...form, akad_address: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Link Google Maps Akad (https://maps.google.com/...)" value={form.akad_map_url} onChange={(e) => setForm({ ...form, akad_map_url: e.target.value })} className={`md:col-span-2 ${INPUT_CLASS}`} />
 
-            <div className="md:col-span-2 pt-2 border-t border-slate-100">
-              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Detail Resepsi</p>
+            <div className="md:col-span-2 pt-3 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-600">Detail Resepsi</p>
             </div>
-            <input placeholder="Tanggal Resepsi" value={form.resepsi_date} onChange={(e) => setForm({ ...form, resepsi_date: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Jam Resepsi (11.00 - 14.00 WIB)" value={form.resepsi_time} onChange={(e) => setForm({ ...form, resepsi_time: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Tempat Resepsi" value={form.resepsi_venue} onChange={(e) => setForm({ ...form, resepsi_venue: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Alamat Resepsi" value={form.resepsi_address} onChange={(e) => setForm({ ...form, resepsi_address: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Link Google Maps Resepsi (https://maps.google.com/...)" value={form.resepsi_map_url} onChange={(e) => setForm({ ...form, resepsi_map_url: e.target.value })} className="md:col-span-2 px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Tanggal Resepsi" value={form.resepsi_date} onChange={(e) => setForm({ ...form, resepsi_date: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Jam Resepsi (11.00 - 14.00 WIB)" value={form.resepsi_time} onChange={(e) => setForm({ ...form, resepsi_time: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Tempat Resepsi" value={form.resepsi_venue} onChange={(e) => setForm({ ...form, resepsi_venue: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Alamat Lengkap Resepsi" value={form.resepsi_address} onChange={(e) => setForm({ ...form, resepsi_address: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Link Google Maps Resepsi (https://maps.google.com/...)" value={form.resepsi_map_url} onChange={(e) => setForm({ ...form, resepsi_map_url: e.target.value })} className={`md:col-span-2 ${INPUT_CLASS}`} />
 
-            <div className="md:col-span-2 pt-2 border-t border-slate-100">
-              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Amplop Digital & Musik</p>
+            <div className="md:col-span-2 pt-3 border-t border-slate-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-600">Amplop Digital & Musik</p>
             </div>
-            <input placeholder="Nama Bank (BCA / BRI / Mandiri)" value={form.bank_name} onChange={(e) => setForm({ ...form, bank_name: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Nomor Rekening" value={form.bank_number} onChange={(e) => setForm({ ...form, bank_number: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="Atas Nama Rekening" value={form.bank_holder} onChange={(e) => setForm({ ...form, bank_holder: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
-            <input placeholder="URL Musik MP3 (opsional)" value={form.music_url} onChange={(e) => setForm({ ...form, music_url: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-300 text-base" />
+            <input placeholder="Nama Bank (BCA / BRI / Mandiri)" value={form.bank_name} onChange={(e) => setForm({ ...form, bank_name: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Nomor Rekening" value={form.bank_number} onChange={(e) => setForm({ ...form, bank_number: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="Atas Nama Rekening" value={form.bank_holder} onChange={(e) => setForm({ ...form, bank_holder: e.target.value })} className={INPUT_CLASS} />
+            <input placeholder="URL Musik MP3 (opsional)" value={form.music_url} onChange={(e) => setForm({ ...form, music_url: e.target.value })} className={INPUT_CLASS} />
 
             <div className="md:col-span-2 flex gap-3 pt-2">
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-50"
+                className="px-7 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold shadow-md disabled:opacity-50 transition"
               >
                 {saving ? "Menyimpan..." : "Simpan Undangan"}
               </button>
               <button
                 type="button"
                 onClick={() => setForm(EMPTY_FORM)}
-                className="px-4 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-600 hover:bg-slate-50"
+                className="px-5 py-2.5 rounded-full border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
               >
                 Reset Form
               </button>
@@ -697,8 +782,8 @@ export default function DashboardPage() {
         </section>
 
         {/* DAFTAR UNDANGAN */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
-          <h2 className="text-base font-bold text-slate-800 mb-4">
+        <section className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+          <h2 className="text-base font-bold text-slate-900 mb-4">
             {currentUser.role === "admin" ? "Semua Undangan Klien" : "Undangan Saya"} ({clients.length})
           </h2>
           {clients.length === 0 ? (
@@ -706,28 +791,28 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {clients.map((c) => (
-                <div key={c.id} className="p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div key={c.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-slate-800">
+                    <p className="font-bold text-slate-900">
                       {c.bride_nickname} & {c.groom_nickname}{" "}
-                      <span className="text-xs font-mono text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md ml-1">
+                      <span className="text-xs font-mono text-blue-700 bg-blue-100/70 px-2.5 py-0.5 rounded-full ml-1">
                         /u/{c.slug}
                       </span>
                     </p>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-600 mt-0.5">
                       Tema: {THEMES[c.theme]?.name || c.theme} • {c.event_date_label}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       onClick={() => openGuestManager(c)}
-                      className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 transition"
                     >
                       <Users className="w-3.5 h-3.5" /> Tamu
                     </button>
                     <button
                       onClick={() => handleEditClient(c)}
-                      className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium flex items-center gap-1"
+                      className="px-3.5 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1 transition"
                     >
                       <Edit3 className="w-3.5 h-3.5" /> Edit
                     </button>
@@ -735,13 +820,13 @@ export default function DashboardPage() {
                       href={`/u/${c.slug}?to=Tamu+Undangan`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium flex items-center gap-1"
+                      className="px-3.5 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1 transition"
                     >
                       <ExternalLink className="w-3.5 h-3.5" /> Lihat
                     </a>
                     <button
                       onClick={() => handleDeleteClient(c.id)}
-                      className="p-1.5 rounded-lg text-red-600 hover:bg-red-50"
+                      className="p-2 rounded-full text-red-600 hover:bg-red-50 transition"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -754,7 +839,7 @@ export default function DashboardPage() {
 
         {/* KELOLA TAMU PER UNDANGAN */}
         {selectedClient && (
-          <section className="bg-white rounded-2xl border-2 border-blue-200 p-6 shadow-xs">
+          <section className="bg-white rounded-3xl border-2 border-blue-200 p-6 shadow-sm">
             <h2 className="text-base font-bold text-blue-700 mb-4">
               Database Tamu Undangan: {selectedClient.bride_nickname} & {selectedClient.groom_nickname} (/u/{selectedClient.slug})
             </h2>
@@ -765,17 +850,17 @@ export default function DashboardPage() {
                 placeholder="Nama Tamu (contoh: Budi Santoso)"
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
-                className="px-3 py-2 rounded-xl border border-slate-300 text-base"
+                className={INPUT_CLASS}
               />
               <input
                 placeholder="No. WA (opsional, 0812xxx)"
                 value={guestPhone}
                 onChange={(e) => setGuestPhone(e.target.value)}
-                className="px-3 py-2 rounded-xl border border-slate-300 text-base"
+                className={INPUT_CLASS}
               />
               <button
                 type="submit"
-                className="py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
+                className="py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"
               >
                 + Tambah Tamu
               </button>
@@ -786,28 +871,28 @@ export default function DashboardPage() {
                 <p className="text-xs text-slate-500">Belum ada tamu untuk undangan ini.</p>
               ) : (
                 guests.map((g) => (
-                  <div key={g.id} className="p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                  <div key={g.id} className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="text-sm font-semibold text-slate-800">{g.name}</p>
-                      {g.phone && <p className="text-xs text-slate-500">{g.phone}</p>}
+                      <p className="text-sm font-bold text-slate-900">{g.name}</p>
+                      {g.phone && <p className="text-xs text-slate-600">{g.phone}</p>}
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => copyGuestLink(g)}
-                        className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700 text-xs font-semibold flex items-center gap-1"
                       >
                         {copiedId === g.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                         {copiedId === g.id ? "Tersalin" : "Copy Link"}
                       </button>
                       <button
                         onClick={() => sendWhatsApp(g)}
-                        className="px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1"
                       >
                         <Send className="w-3.5 h-3.5" /> Kirim WA
                       </button>
                       <button
                         onClick={() => handleDeleteGuest(g.id)}
-                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-full"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
