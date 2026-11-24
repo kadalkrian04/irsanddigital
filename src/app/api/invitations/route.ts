@@ -24,18 +24,6 @@ export async function POST(req: Request) {
 
   try {
     const sql = getDb();
-
-    // Cek apakah user biasa sudah diberi akses oleh admin
-    if (auth.role !== "admin") {
-      const userRows = await sql`SELECT has_access FROM users WHERE id = ${auth.id} LIMIT 1`;
-      if (!userRows[0]?.has_access) {
-        return NextResponse.json(
-          { error: "Akun Anda belum aktif. Silakan hubungi admin untuk aktivasi." },
-          { status: 403 }
-        );
-      }
-    }
-
     const b = await req.json();
     const slug = String(b.slug || "")
       .toLowerCase()
@@ -46,13 +34,45 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Slug & nama panggilan mempelai wajib diisi" }, { status: 400 });
     }
 
-    // Cek kepemilikan slug agar user tidak menimpa undangan orang lain
     const existing = await sql`SELECT id, user_id FROM invitations WHERE slug = ${slug} LIMIT 1`;
-    if (existing.length > 0 && auth.role !== "admin" && existing[0].user_id !== auth.id) {
+    const isEdit = existing.length > 0;
+
+    if (isEdit && auth.role !== "admin" && existing[0].user_id !== auth.id) {
       return NextResponse.json(
         { error: "Slug URL sudah dipakai orang lain. Gunakan nama lain." },
         { status: 409 }
       );
+    }
+
+    // Cek akses & kuota khusus User Biasa
+    if (auth.role !== "admin") {
+      const userRows = await sql`
+        SELECT has_access, invitation_quota FROM users WHERE id = ${auth.id} LIMIT 1
+      `;
+      const u = userRows[0];
+      if (!u?.has_access) {
+        return NextResponse.json(
+          { error: "Akun Anda belum aktif. Silakan hubungi admin untuk aktivasi." },
+          { status: 403 }
+        );
+      }
+
+      // Jika membuat undangan BARU (bukan edit/ganti tema), cek kuota
+      if (!isEdit) {
+        const countRows = await sql`
+          SELECT COUNT(*)::int AS total FROM invitations WHERE user_id = ${auth.id}
+        `;
+        const used = countRows[0]?.total || 0;
+        const quota = u.invitation_quota ?? 1;
+        if (used >= quota) {
+          return NextResponse.json(
+            {
+              error: `Kuota pembuatan undangan habis (${used}/${quota}). Anda tetap bisa mengedit atau mengganti tema undangan yang sudah ada, atau hubungi Admin untuk tambah kuota.`,
+            },
+            { status: 403 }
+          );
+        }
+      }
     }
 
     const ownerId = auth.role === "admin" ? (existing[0]?.user_id ?? null) : auth.id;
@@ -104,6 +124,14 @@ export async function POST(req: Request) {
         bank_accounts = EXCLUDED.bank_accounts,
         gallery = EXCLUDED.gallery
       RETURNING *;
+    `;
+
+    // Catat ke Log Aktivitas
+    const actionLabel = isEdit ? "Edit Undangan" : "Buat Undangan";
+    const detailText = `${b.bride_nickname} & ${b.groom_nickname} (/u/${slug}) • Tema: ${b.theme || "jawa-maroon"}`;
+    await sql`
+      INSERT INTO activity_logs (user_id, user_name, action, detail)
+      VALUES (${auth.role === "admin" ? null : auth.id}, ${auth.name}, ${actionLabel}, ${detailText});
     `;
 
     return NextResponse.json(rows[0], { status: 201 });

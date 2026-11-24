@@ -16,14 +16,18 @@ export async function GET(req: Request) {
       whatsapp: "",
       role: "admin",
       has_access: true,
+      invitation_quota: 9999,
+      used_invitations: 0,
     });
   }
 
   const sql = getDb();
   const rows = await sql`
-    SELECT id, name, email, whatsapp, role, has_access
-    FROM users
-    WHERE id = ${auth.id}
+    SELECT
+      u.id, u.name, u.email, u.whatsapp, u.role, u.has_access, u.invitation_quota,
+      (SELECT COUNT(*)::int FROM invitations i WHERE i.user_id = u.id) AS used_invitations
+    FROM users u
+    WHERE u.id = ${auth.id}
     LIMIT 1;
   `;
 

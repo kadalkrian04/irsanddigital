@@ -49,6 +49,15 @@ export async function POST(req: Request) {
     VALUES (${Number(invitationId)}, ${name.trim()}, ${(phone || "").trim()})
     RETURNING *;
   `;
+
+  // Catat ke Log Aktivitas
+  const invRows = await sql`SELECT slug FROM invitations WHERE id = ${Number(invitationId)} LIMIT 1`;
+  const slug = invRows[0]?.slug || String(invitationId);
+  await sql`
+    INSERT INTO activity_logs (user_id, user_name, action, detail)
+    VALUES (${auth.role === "admin" ? null : auth.id}, ${auth.name}, 'Tambah Tamu', ${`Tamu "${name.trim()}" pada /u/${slug}`});
+  `;
+
   return NextResponse.json(rows[0], { status: 201 });
 }
 

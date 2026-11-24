@@ -13,6 +13,17 @@ export type UserRow = {
   whatsapp: string;
   role: "admin" | "user";
   has_access: boolean;
+  invitation_quota: number;
+  used_invitations?: number;
+  created_at: string;
+};
+
+export type ActivityLogRow = {
+  id: number;
+  user_id: number | null;
+  user_name: string;
+  action: string;
+  detail: string;
   created_at: string;
 };
 

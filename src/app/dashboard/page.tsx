@@ -341,10 +341,16 @@ export default function UserDashboardPage() {
             Dashboard Undangan Saya
           </h1>
           <p className="text-xs sm:text-sm text-white/90 mt-1">
-            Buat, edit, dan bagikan undangan digital Anda ke WhatsApp dalam hitungan detik.
+            Buat, edit, gonta-ganti tema, dan tambah tamu undangan unlimited.
           </p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 px-4 py-1.5 text-xs font-semibold text-white">
+            <span>
+              Kuota Undangan: {invitations.length} / {user.invitation_quota ?? 1} terpakai
+            </span>
+            <span>•</span>
+            <span>Tamu Unlimited</span>
+          </div>
         </div>
-      </div>
 
       <div className="max-w-5xl mx-auto px-4 -mt-2 space-y-8 relative z-10">
         {/* FORM BUAT / EDIT UNDANGAN */}
