@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   Trash2,
@@ -12,19 +13,12 @@ import {
   Send,
   LogOut,
   Edit3,
-  Lock,
   CheckCircle2,
   XCircle,
-  RefreshCw,
   Heart,
-  Sparkles,
-  Home,
 } from "lucide-react";
 import type { InvitationRow, GuestRow, UserRow } from "@/lib/db";
 import { THEMES } from "@/lib/themes";
-
-// Ganti dengan nomor WhatsApp Admin kamu (format 628xxx)
-const ADMIN_WA = "6281234567890";
 
 const INPUT_CLASS =
   "w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition";
@@ -64,26 +58,12 @@ const EMPTY_FORM = {
   bank_holder: "",
 };
 
-export default function DashboardPage() {
-  const [authTab, setAuthTab] = useState<"login" | "register">("login");
+export default function AdminDashboardPage() {
+  const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<UserRow | null>(null);
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  // Form Login / Register
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [regName, setRegName] = useState("");
-  const [regEmail, setRegEmail] = useState("");
-  const [regWa, setRegWa] = useState("");
-  const [regPassword, setRegPassword] = useState("");
-  const [authError, setAuthError] = useState("");
-  const [authLoading, setAuthLoading] = useState(false);
-
-  // Admin: User Management
   const [usersList, setUsersList] = useState<UserRow[]>([]);
-
-  // Invitations & Guests
   const [clients, setClients] = useState<InvitationRow[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -94,98 +74,35 @@ export default function DashboardPage() {
   const [guestPhone, setGuestPhone] = useState("");
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
-  const loadSession = async (savedToken: string) => {
-    setCheckingAuth(true);
-    try {
-      const res = await fetch("/api/auth/me", {
-        headers: { "x-auth-token": savedToken },
-      });
-      if (!res.ok) {
-        localStorage.removeItem("auth_token");
-        setToken(null);
-        setCurrentUser(null);
-        return;
-      }
-      const user: UserRow = await res.json();
-      setToken(savedToken);
-      setCurrentUser(user);
-
-      if (user.role === "admin") {
-        fetchUsers(savedToken);
-        fetchClients(savedToken);
-      } else if (user.has_access) {
-        fetchClients(savedToken);
-      }
-    } finally {
-      setCheckingAuth(false);
-    }
-  };
-
   useEffect(() => {
     const saved = localStorage.getItem("auth_token");
-    if (saved) {
-      loadSession(saved);
-    } else {
-      setCheckingAuth(false);
+    if (!saved) {
+      router.replace("/login");
+      return;
     }
-  }, []);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError("");
-    setAuthLoading(true);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setAuthError(data.error || "Gagal login.");
-        return;
-      }
-      localStorage.setItem("auth_token", data.token);
-      await loadSession(data.token);
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError("");
-    setAuthLoading(true);
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: regName,
-          email: regEmail,
-          whatsapp: regWa,
-          password: regPassword,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setAuthError(data.error || "Gagal mendaftar.");
-        return;
-      }
-      localStorage.setItem("auth_token", data.token);
-      await loadSession(data.token);
-    } finally {
-      setAuthLoading(false);
-    }
-  };
+    fetch("/api/auth/me", { headers: { "x-auth-token": saved } })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((u: UserRow | null) => {
+        if (!u) {
+          localStorage.removeItem("auth_token");
+          router.replace("/login");
+          return;
+        }
+        if (u.role !== "admin") {
+          router.replace("/dashboard");
+          return;
+        }
+        setToken(saved);
+        fetchUsers(saved);
+        fetchClients(saved);
+        setLoading(false);
+      })
+      .catch(() => router.replace("/login"));
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem("auth_token");
-    setToken(null);
-    setCurrentUser(null);
-    setClients([]);
-    setUsersList([]);
-    setSelectedClient(null);
+    router.push("/login");
   };
 
   const fetchUsers = async (tok: string) => {
@@ -197,10 +114,7 @@ export default function DashboardPage() {
     if (!token) return;
     const res = await fetch("/api/users", {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "x-auth-token": token,
-      },
+      headers: { "Content-Type": "application/json", "x-auth-token": token },
       body: JSON.stringify({ id: user.id, has_access: !user.has_access }),
     });
     if (res.ok) fetchUsers(token);
@@ -208,10 +122,7 @@ export default function DashboardPage() {
 
   const deleteUser = async (id: number) => {
     if (!token || !confirm("Hapus akun user ini?")) return;
-    await fetch(`/api/users?id=${id}`, {
-      method: "DELETE",
-      headers: { "x-auth-token": token },
-    });
+    await fetch(`/api/users?id=${id}`, { method: "DELETE", headers: { "x-auth-token": token } });
     fetchUsers(token);
   };
 
@@ -236,10 +147,7 @@ export default function DashboardPage() {
       };
       const res = await fetch("/api/invitations", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": token,
-        },
+        headers: { "Content-Type": "application/json", "x-auth-token": token },
         body: JSON.stringify(payload),
       });
       if (res.ok) {
@@ -291,10 +199,7 @@ export default function DashboardPage() {
 
   const handleDeleteClient = async (id: number) => {
     if (!token || !confirm("Hapus undangan ini beserta semua tamu & ucapannya?")) return;
-    await fetch(`/api/invitations?id=${id}`, {
-      method: "DELETE",
-      headers: { "x-auth-token": token },
-    });
+    await fetch(`/api/invitations?id=${id}`, { method: "DELETE", headers: { "x-auth-token": token } });
     if (selectedClient?.id === id) setSelectedClient(null);
     fetchClients(token);
   };
@@ -313,15 +218,8 @@ export default function DashboardPage() {
     if (!token || !selectedClient || !guestName.trim()) return;
     const res = await fetch("/api/guests", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-auth-token": token,
-      },
-      body: JSON.stringify({
-        invitationId: selectedClient.id,
-        name: guestName,
-        phone: guestPhone,
-      }),
+      headers: { "Content-Type": "application/json", "x-auth-token": token },
+      body: JSON.stringify({ invitationId: selectedClient.id, name: guestName, phone: guestPhone }),
     });
     if (res.ok) {
       const added: GuestRow = await res.json();
@@ -333,10 +231,7 @@ export default function DashboardPage() {
 
   const handleDeleteGuest = async (id: number) => {
     if (!token) return;
-    await fetch(`/api/guests?id=${id}`, {
-      method: "DELETE",
-      headers: { "x-auth-token": token },
-    });
+    await fetch(`/api/guests?id=${id}`, { method: "DELETE", headers: { "x-auth-token": token } });
     setGuests(guests.filter((g) => g.id !== id));
   };
 
@@ -360,242 +255,18 @@ export default function DashboardPage() {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
-  if (checkingAuth) {
+  if (loading || !token) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#69B4FF] via-[#7C9BFF] to-white flex items-center justify-center text-sm font-medium text-white">
-        Memuat sesi...
+        Memuat panel admin...
       </div>
     );
   }
 
-  /* ==================== HALAMAN LOGIN & REGISTER (TEMA HALAMAN UTAMA) ==================== */
-  if (!token || !currentUser) {
-    return (
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#69B4FF] via-[#7C9BFF] to-white text-slate-900">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-70" style={STAR_BG} />
-
-        {/* FLOATING PILL NAVBAR */}
-        <header className="relative z-20 mx-auto max-w-2xl px-4 pt-6 sm:pt-8">
-          <nav className="flex items-center justify-between gap-2 rounded-full bg-slate-900/90 px-3 py-2 text-white shadow-xl backdrop-blur-md border border-white/10">
-            <Link href="/" className="flex items-center gap-2 pl-1">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 shadow-inner">
-                <Heart className="h-4 w-4 fill-white text-white" />
-              </span>
-              <span className="text-sm font-bold tracking-tight">IrsandDigital</span>
-            </Link>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/10 hover:bg-white/20 px-4 py-1.5 text-xs font-medium text-white transition"
-            >
-              <Home className="h-3.5 w-3.5" /> Beranda
-            </Link>
-          </nav>
-        </header>
-
-        {/* FORM CARD */}
-        <div className="relative z-10 flex flex-col items-center justify-center px-4 pt-12 pb-16">
-          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-900/20 ring-4 ring-white/25">
-            <Sparkles className="h-7 w-7" />
-          </div>
-
-          <div className="w-full max-w-md rounded-3xl border border-white/70 bg-white/95 backdrop-blur-md p-7 sm:p-8 shadow-2xl shadow-blue-950/15 space-y-5">
-            <div className="text-center">
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-                {authTab === "login" ? "Selamat Datang Kembali" : "Buat Akun Baru"}
-              </h1>
-              <p className="text-xs text-slate-500 mt-1">
-                {authTab === "login"
-                  ? "Masuk untuk mengelola undangan digital Anda"
-                  : "Daftar sekarang untuk mulai membuat undangan digital"}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-2xl">
-              <button
-                type="button"
-                onClick={() => { setAuthTab("login"); setAuthError(""); }}
-                className={`py-2.5 rounded-xl text-xs font-bold transition ${
-                  authTab === "login" ? "bg-white text-blue-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                Masuk
-              </button>
-              <button
-                type="button"
-                onClick={() => { setAuthTab("register"); setAuthError(""); }}
-                className={`py-2.5 rounded-xl text-xs font-bold transition ${
-                  authTab === "register" ? "bg-white text-blue-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                Daftar Akun
-              </button>
-            </div>
-
-            {authError && (
-              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs font-medium text-red-700">
-                {authError}
-              </div>
-            )}
-
-            {authTab === "login" ? (
-              <form onSubmit={handleLogin} className="space-y-3.5">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email / Username</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Email Anda (atau ketik: admin)"
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    className={INPUT_CLASS}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="Masukkan password"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    className={INPUT_CLASS}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="w-full py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 disabled:opacity-50 transition mt-2"
-                >
-                  {authLoading ? "Memproses..." : "Masuk Dashboard"}
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleRegister} className="space-y-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: Budi Santoso"
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    className={INPUT_CLASS}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email Aktif</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="nama@email.com"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    className={INPUT_CLASS}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Nomor WhatsApp</label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="0812xxxxxxxx"
-                    value={regWa}
-                    onChange={(e) => setRegWa(e.target.value)}
-                    className={INPUT_CLASS}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    placeholder="Minimal 6 karakter"
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    className={INPUT_CLASS}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="w-full py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 disabled:opacity-50 transition mt-2"
-                >
-                  {authLoading ? "Mendaftar..." : "Daftar Sekarang"}
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  /* ==================== LAYAR TERKUNCI UNTUK USER BELUM BAYAR ==================== */
-  if (currentUser.role !== "admin" && !currentUser.has_access) {
-    const waMsg = encodeURIComponent(
-      `Halo Admin IrsandDigital, saya *${currentUser.name}* (${currentUser.email}) ingin melakukan pembayaran untuk aktivasi akses pembuatan undangan digital.`
-    );
-    return (
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#69B4FF] via-[#7C9BFF] to-white text-slate-900">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-70" style={STAR_BG} />
-
-        <header className="relative z-20 mx-auto max-w-3xl px-4 pt-6">
-          <nav className="flex items-center justify-between gap-2 rounded-full bg-slate-900/90 px-3 py-2 text-white shadow-xl backdrop-blur-md border border-white/10">
-            <Link href="/" className="flex items-center gap-2 pl-1">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-indigo-600">
-                <Heart className="h-4 w-4 fill-white text-white" />
-              </span>
-              <span className="text-sm font-bold">IrsandDigital</span>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="rounded-full bg-white/10 hover:bg-white/20 px-4 py-1.5 text-xs font-medium text-white flex items-center gap-1.5 transition"
-            >
-              <LogOut className="w-3.5 h-3.5" /> Keluar
-            </button>
-          </nav>
-        </header>
-
-        <div className="relative z-10 flex items-center justify-center px-4 pt-16 pb-16">
-          <div className="max-w-md w-full bg-white/95 backdrop-blur-md rounded-3xl border border-white/70 p-8 text-center shadow-2xl shadow-blue-950/15 space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
-              <Lock className="w-7 h-7" />
-            </div>
-            <h2 className="text-xl font-extrabold text-slate-900">Akses Pembuatan Undangan Terkunci</h2>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Halo <strong className="text-slate-900">{currentUser.name}</strong>, akun Anda sudah terdaftar.
-              Untuk mulai membuat undangan digital, silakan lakukan pembayaran dan konfirmasi ke Admin terlebih dahulu.
-            </p>
-            <div className="flex flex-col gap-2.5 pt-2">
-              <a
-                href={`https://wa.me/${ADMIN_WA}?text=${waMsg}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-md transition"
-              >
-                <Send className="w-4 h-4" /> Hubungi Admin via WhatsApp
-              </a>
-              <button
-                onClick={() => loadSession(token)}
-                className="w-full py-2.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
-              >
-                <RefreshCw className="w-3.5 h-3.5" /> Cek Status Akses
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  /* ==================== DASHBOARD UTAMA (ADMIN & USER AKTIF) ==================== */
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-16">
-      {/* HEADER GRADASI BIRU LANGIT + FLOATING NAVBAR */}
       <div className="relative overflow-hidden bg-gradient-to-b from-[#69B4FF] via-[#7C9BFF] to-slate-50 pt-6 pb-10">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60" style={STAR_BG} />
-
         <header className="relative z-20 mx-auto max-w-5xl px-4">
           <nav className="flex items-center justify-between gap-2 rounded-full bg-slate-900/90 px-3 py-2 text-white shadow-xl backdrop-blur-md border border-white/10">
             <Link href="/" className="flex items-center gap-2 pl-1">
@@ -605,9 +276,7 @@ export default function DashboardPage() {
               <span className="text-sm font-bold tracking-tight">IrsandDigital</span>
             </Link>
             <div className="flex items-center gap-2">
-              <span className="hidden sm:inline text-xs text-slate-300 pr-2">
-                {currentUser.name} ({currentUser.role === "admin" ? "Admin" : "Member"})
-              </span>
+              <span className="hidden sm:inline text-xs text-blue-300 font-semibold pr-2">Administrator</span>
               <button
                 onClick={handleLogout}
                 className="rounded-full bg-white/10 hover:bg-white/20 px-4 py-1.5 text-xs font-semibold text-white flex items-center gap-1.5 transition"
@@ -620,97 +289,77 @@ export default function DashboardPage() {
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 text-center">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white drop-shadow-xs">
-            {currentUser.role === "admin" ? "Panel Admin Undangan Digital" : "Dashboard Undangan Saya"}
+            Panel Super Admin
           </h1>
           <p className="text-xs sm:text-sm text-white/90 mt-1">
-            Kelola tema, data mempelai, lokasi maps, amplop digital, dan daftar tamu dalam satu tempat.
+            Aktivasi akses akun user setelah pembayaran & kelola seluruh undangan klien.
           </p>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 -mt-2 space-y-8 relative z-10">
-        {/* KHUSUS ADMIN: MANAJEMEN AKSES USER */}
-        {currentUser.role === "admin" && (
-          <section className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
-            <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <Users className="w-4 h-4 text-blue-600" />
-              Daftar Akun User ({usersList.length}) — Aktivasi Akses Setelah Bayar
-            </h2>
-            {usersList.length === 0 ? (
-              <p className="text-xs text-slate-500">Belum ada user yang mendaftar.</p>
-            ) : (
-              <div className="space-y-2.5">
-                {usersList.map((u) => (
-                  <div
-                    key={u.id}
-                    className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-bold text-sm text-slate-900">{u.name}</p>
-                        {u.has_access ? (
-                          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" /> Aktif
-                          </span>
-                        ) : (
-                          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold flex items-center gap-1">
-                            <XCircle className="w-3 h-3" /> Belum Aktif
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-600 mt-0.5">
-                        {u.email} {u.whatsapp ? `• WA: ${u.whatsapp}` : ""}
-                      </p>
-                    </div>
+        {/* MANAJEMEN AKSES USER */}
+        <section className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+          <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <Users className="w-4 h-4 text-blue-600" />
+            Daftar Akun User ({usersList.length}) — Aktivasi Akses Setelah Bayar
+          </h2>
+          {usersList.length === 0 ? (
+            <p className="text-xs text-slate-500">Belum ada user yang mendaftar.</p>
+          ) : (
+            <div className="space-y-2.5">
+              {usersList.map((u) => (
+                <div key={u.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
                     <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => toggleUserAccess(u)}
-                        className={`px-4 py-2 rounded-full text-xs font-semibold text-white transition ${
-                          u.has_access
-                            ? "bg-amber-600 hover:bg-amber-700"
-                            : "bg-emerald-600 hover:bg-emerald-700"
-                        }`}
-                      >
-                        {u.has_access ? "Cabut Akses" : "Aktifkan Akses"}
-                      </button>
-                      <button
-                        onClick={() => deleteUser(u.id)}
-                        className="p-2 rounded-full text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <p className="font-bold text-sm text-slate-900">{u.name}</p>
+                      {u.has_access ? (
+                        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Aktif
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold flex items-center gap-1">
+                          <XCircle className="w-3 h-3" /> Belum Aktif
+                        </span>
+                      )}
                     </div>
+                    <p className="text-xs text-slate-600 mt-0.5">
+                      {u.email} {u.whatsapp ? `• WA: ${u.whatsapp}` : ""}
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => toggleUserAccess(u)}
+                      className={`px-4 py-2 rounded-full text-xs font-semibold text-white transition ${
+                        u.has_access ? "bg-amber-600 hover:bg-amber-700" : "bg-emerald-600 hover:bg-emerald-700"
+                      }`}
+                    >
+                      {u.has_access ? "Cabut Akses" : "Aktifkan Akses"}
+                    </button>
+                    <button onClick={() => deleteUser(u.id)} className="p-2 rounded-full text-red-600 hover:bg-red-50">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
-        {/* FORM TAMBAH / EDIT UNDANGAN */}
+        {/* FORM BUAT / EDIT UNDANGAN */}
         <section className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
           <h2 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
             <Plus className="w-4 h-4 text-blue-600" />
-            Buat / Edit Undangan
+            Buat / Edit Undangan Klien
           </h2>
           <form onSubmit={handleSaveClient} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Slug URL (contoh: dika-rani)</label>
-              <input
-                required
-                value={form.slug}
-                onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                placeholder="dika-rani"
-                className={INPUT_CLASS}
-              />
+              <input required value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="dika-rani" className={INPUT_CLASS} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Tema Undangan</label>
-              <select
-                value={form.theme}
-                onChange={(e) => setForm({ ...form, theme: e.target.value })}
-                className={INPUT_CLASS}
-              >
+              <select value={form.theme} onChange={(e) => setForm({ ...form, theme: e.target.value })} className={INPUT_CLASS}>
                 {Object.values(THEMES).map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
@@ -720,12 +369,12 @@ export default function DashboardPage() {
             <div className="md:col-span-2 pt-3 border-t border-slate-100">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">Data Mempelai</p>
             </div>
-            <input required placeholder="Panggilan Pria (contoh: Dika)" value={form.groom_nickname} onChange={(e) => setForm({ ...form, groom_nickname: e.target.value })} className={INPUT_CLASS} />
+            <input required placeholder="Panggilan Pria" value={form.groom_nickname} onChange={(e) => setForm({ ...form, groom_nickname: e.target.value })} className={INPUT_CLASS} />
             <input required placeholder="Nama Lengkap Pria" value={form.groom_full_name} onChange={(e) => setForm({ ...form, groom_full_name: e.target.value })} className={INPUT_CLASS} />
             <input placeholder="Orang Tua Pria" value={form.groom_parents} onChange={(e) => setForm({ ...form, groom_parents: e.target.value })} className={INPUT_CLASS} />
             <input placeholder="URL Foto Pria (opsional)" value={form.groom_photo} onChange={(e) => setForm({ ...form, groom_photo: e.target.value })} className={INPUT_CLASS} />
 
-            <input required placeholder="Panggilan Wanita (contoh: Rani)" value={form.bride_nickname} onChange={(e) => setForm({ ...form, bride_nickname: e.target.value })} className={INPUT_CLASS} />
+            <input required placeholder="Panggilan Wanita" value={form.bride_nickname} onChange={(e) => setForm({ ...form, bride_nickname: e.target.value })} className={INPUT_CLASS} />
             <input required placeholder="Nama Lengkap Wanita" value={form.bride_full_name} onChange={(e) => setForm({ ...form, bride_full_name: e.target.value })} className={INPUT_CLASS} />
             <input placeholder="Orang Tua Wanita" value={form.bride_parents} onChange={(e) => setForm({ ...form, bride_parents: e.target.value })} className={INPUT_CLASS} />
             <input placeholder="URL Foto Wanita (opsional)" value={form.bride_photo} onChange={(e) => setForm({ ...form, bride_photo: e.target.value })} className={INPUT_CLASS} />
@@ -763,31 +412,21 @@ export default function DashboardPage() {
             <input placeholder="URL Musik MP3 (opsional)" value={form.music_url} onChange={(e) => setForm({ ...form, music_url: e.target.value })} className={INPUT_CLASS} />
 
             <div className="md:col-span-2 flex gap-3 pt-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-7 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold shadow-md disabled:opacity-50 transition"
-              >
+              <button type="submit" disabled={saving} className="px-7 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold shadow-md disabled:opacity-50 transition">
                 {saving ? "Menyimpan..." : "Simpan Undangan"}
               </button>
-              <button
-                type="button"
-                onClick={() => setForm(EMPTY_FORM)}
-                className="px-5 py-2.5 rounded-full border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
-              >
+              <button type="button" onClick={() => setForm(EMPTY_FORM)} className="px-5 py-2.5 rounded-full border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
                 Reset Form
               </button>
             </div>
           </form>
         </section>
 
-        {/* DAFTAR UNDANGAN */}
+        {/* SEMUA UNDANGAN KLIEN */}
         <section className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
-          <h2 className="text-base font-bold text-slate-900 mb-4">
-            {currentUser.role === "admin" ? "Semua Undangan Klien" : "Undangan Saya"} ({clients.length})
-          </h2>
+          <h2 className="text-base font-bold text-slate-900 mb-4">Semua Undangan Klien ({clients.length})</h2>
           {clients.length === 0 ? (
-            <p className="text-xs text-slate-500">Belum ada undangan. Silakan buat lewat form di atas.</p>
+            <p className="text-xs text-slate-500">Belum ada undangan.</p>
           ) : (
             <div className="space-y-3">
               {clients.map((c) => (
@@ -795,39 +434,21 @@ export default function DashboardPage() {
                   <div>
                     <p className="font-bold text-slate-900">
                       {c.bride_nickname} & {c.groom_nickname}{" "}
-                      <span className="text-xs font-mono text-blue-700 bg-blue-100/70 px-2.5 py-0.5 rounded-full ml-1">
-                        /u/{c.slug}
-                      </span>
+                      <span className="text-xs font-mono text-blue-700 bg-blue-100/70 px-2.5 py-0.5 rounded-full ml-1">/u/{c.slug}</span>
                     </p>
-                    <p className="text-xs text-slate-600 mt-0.5">
-                      Tema: {THEMES[c.theme]?.name || c.theme} • {c.event_date_label}
-                    </p>
+                    <p className="text-xs text-slate-600 mt-0.5">Tema: {THEMES[c.theme]?.name || c.theme} • {c.event_date_label}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      onClick={() => openGuestManager(c)}
-                      className="px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 transition"
-                    >
+                    <button onClick={() => openGuestManager(c)} className="px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 transition">
                       <Users className="w-3.5 h-3.5" /> Tamu
                     </button>
-                    <button
-                      onClick={() => handleEditClient(c)}
-                      className="px-3.5 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1 transition"
-                    >
+                    <button onClick={() => handleEditClient(c)} className="px-3.5 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1 transition">
                       <Edit3 className="w-3.5 h-3.5" /> Edit
                     </button>
-                    <a
-                      href={`/u/${c.slug}?to=Tamu+Undangan`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3.5 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1 transition"
-                    >
+                    <a href={`/u/${c.slug}?to=Tamu+Undangan`} target="_blank" rel="noopener noreferrer" className="px-3.5 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1 transition">
                       <ExternalLink className="w-3.5 h-3.5" /> Lihat
                     </a>
-                    <button
-                      onClick={() => handleDeleteClient(c.id)}
-                      className="p-2 rounded-full text-red-600 hover:bg-red-50 transition"
-                    >
+                    <button onClick={() => handleDeleteClient(c.id)} className="p-2 rounded-full text-red-600 hover:bg-red-50 transition">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -837,38 +458,22 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* KELOLA TAMU PER UNDANGAN */}
+        {/* KELOLA TAMU */}
         {selectedClient && (
           <section className="bg-white rounded-3xl border-2 border-blue-200 p-6 shadow-sm">
             <h2 className="text-base font-bold text-blue-700 mb-4">
-              Database Tamu Undangan: {selectedClient.bride_nickname} & {selectedClient.groom_nickname} (/u/{selectedClient.slug})
+              Database Tamu: {selectedClient.bride_nickname} & {selectedClient.groom_nickname} (/u/{selectedClient.slug})
             </h2>
-
             <form onSubmit={handleAddGuest} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-              <input
-                required
-                placeholder="Nama Tamu (contoh: Budi Santoso)"
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                className={INPUT_CLASS}
-              />
-              <input
-                placeholder="No. WA (opsional, 0812xxx)"
-                value={guestPhone}
-                onChange={(e) => setGuestPhone(e.target.value)}
-                className={INPUT_CLASS}
-              />
-              <button
-                type="submit"
-                className="py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"
-              >
+              <input required placeholder="Nama Tamu" value={guestName} onChange={(e) => setGuestName(e.target.value)} className={INPUT_CLASS} />
+              <input placeholder="No. WA (opsional, 0812xxx)" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} className={INPUT_CLASS} />
+              <button type="submit" className="py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition">
                 + Tambah Tamu
               </button>
             </form>
-
             <div className="space-y-2">
               {guests.length === 0 ? (
-                <p className="text-xs text-slate-500">Belum ada tamu untuk undangan ini.</p>
+                <p className="text-xs text-slate-500">Belum ada tamu.</p>
               ) : (
                 guests.map((g) => (
                   <div key={g.id} className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-wrap items-center justify-between gap-2">
@@ -877,23 +482,14 @@ export default function DashboardPage() {
                       {g.phone && <p className="text-xs text-slate-600">{g.phone}</p>}
                     </div>
                     <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => copyGuestLink(g)}
-                        className="px-3 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700 text-xs font-semibold flex items-center gap-1"
-                      >
+                      <button onClick={() => copyGuestLink(g)} className="px-3 py-1.5 rounded-full border border-slate-300 bg-white text-slate-700 text-xs font-semibold flex items-center gap-1">
                         {copiedId === g.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                         {copiedId === g.id ? "Tersalin" : "Copy Link"}
                       </button>
-                      <button
-                        onClick={() => sendWhatsApp(g)}
-                        className="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1"
-                      >
+                      <button onClick={() => sendWhatsApp(g)} className="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1">
                         <Send className="w-3.5 h-3.5" /> Kirim WA
                       </button>
-                      <button
-                        onClick={() => handleDeleteGuest(g.id)}
-                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-full"
-                      >
+                      <button onClick={() => handleDeleteGuest(g.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-full">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

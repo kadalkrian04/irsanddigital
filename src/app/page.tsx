@@ -52,10 +52,10 @@ export default function HomePage() {
 
             <div className="flex items-center gap-2">
               <Link
-                href="/admin"
+                href="/login"
                 className="rounded-full bg-white/10 hover:bg-white/20 px-3.5 py-1.5 text-xs font-medium text-white transition"
               >
-                Admin
+                Login
               </Link>
               <Link
                 href="/u/dika?to=Tamu+VIP"
@@ -98,11 +98,11 @@ export default function HomePage() {
                 Lihat Demo Undangan
               </Link>
               <Link
-                href="/admin"
+                href="/login"
                 className="inline-flex items-center gap-2 rounded-full bg-slate-900/80 hover:bg-slate-900 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm border border-white/15 active:scale-95 transition"
               >
                 <ShieldCheck className="h-4 w-4 text-blue-300" />
-                Panel Admin
+                Panel Login
               </Link>
             </div>
             <p className="text-[11px] font-medium text-white/80">
