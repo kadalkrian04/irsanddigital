@@ -253,7 +253,7 @@ export default function HomePage() {
       </section>
 
       <footer className="border-t border-slate-100 py-8 text-center text-xs text-slate-400">
-        © {new Date().getFullYear()} IrsandDigital • Platform Digital
+        © 2026 IrsandDigital • Platform Undangan Digital
       </footer>
     </div>
   );
